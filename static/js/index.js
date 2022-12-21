@@ -13,7 +13,7 @@ window.onload = function(){
 }
 
 function setMap(){
-    var div = document.getElementsByClassName("wrapper")[0];
+    var div = document.getElementsByClassName("cardArea")[0];
     var posizione = new google.maps.LatLng(44.5558363,7.733851);
     var mapOptions = {
     center:posizione,
