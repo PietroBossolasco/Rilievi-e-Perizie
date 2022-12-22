@@ -1,0 +1,20 @@
+[
+    {
+        "username" : "admin",
+        "nome" : "admin",
+        "cognome" : "admin",
+        "role" : "admin",
+        "password" : "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+        "profilePic" : "https://www.gravatar.com/avatar/8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918?s=200&d=retro"
+    },
+    {
+        "username" : "pietro.bossolasco",
+        "nome" : "Pietro",
+        "cognome" : "Bossolasco",
+        "role" : "admin",
+        "password" : "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+        "profilePic" : "https://www.gravatar.com/avatar/8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918?s=200&d=robohash"
+    }
+]
+
+
