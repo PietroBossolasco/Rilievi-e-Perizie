@@ -8,7 +8,7 @@ window.onload = function(){
 	script.src = URL + '/js?v=3&key='+ MAP_KEY +'&callback=documentReady';
 	document.body.appendChild(script);
 
-    setTimeout(setMap, 1000);
+    setTimeout(setMap, 10000);
     
 }
 

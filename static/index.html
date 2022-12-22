@@ -1,103 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/template.css">
-    <link rel="stylesheet" href="css/index.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/template.css" />
+    <link rel="stylesheet" href="css/index.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="js/credenziali.js"></script>
     <script src="js/template.js"></script>
     <script src="js/index.js"></script>
     <title>Home - Rilievi e perizie</title>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="topbar">
-        <input type="text" placeholder="Cerca perizia">
+      <input type="text" placeholder="Cerca perizia" />
+      <div class="user">
+        <img class="user-img" src="img/user.jpg" />
+        <p>Pietro BOSSOLASCO</p>
+      </div>
     </div>
 
     <div class="leftbar">
-        <p class="logo"> BOSSOLASCO ASSICURAZIONI</p>
-        <div class="menu">
-            <div class="sec active">
-                <img src="img/home.svg">
-                <p>Home</p>
-            </div>
-            <div class="sec">
-                <img src="img/file-text.svg">
-                <p>Perizie</p>
-            </div>
-            <div class="sec">
-                <img src="img/map.svg">
-                <p>Mappa</p>
-            </div>
-        </div>
+      <p class="logo">BOSSOLASCO ASSICURAZIONI</p>
+      <div class="menu">
+          <div class="sec active">
+            <img src="img/home.svg" />
+            <p>Home</p>
+          </div>
+        <a href="perizie.html">
+          <div class="sec">
+            <img src="img/file-text.svg" />
+            <p>Perizie</p>
+          </div>
+        </a>
+        <a href="map.html">
+          <div class="sec">
+            <img src="img/map.svg" />
+            <p>Mappa</p>
+          </div>
+        </a>
+      </div>
     </div>
 
     <div class="wrapper">
-        <p class="wc">Benvenuto [nome]</p>
+      <p class="wc">Benvenuto [nome]</p>
 
-        <div class="upper">
-            <div class="card">
-                <div class="cardTitle">
-                    <p>Mappa rapida</p>
+      <div class="upper">
+        <div class="card">
+          <div class="cardTitle">
+            <p>Mappa rapida</p>
+          </div>
+          <div class="cardArea">
+            <div class="loading">
+              <div class="main-item">
+                <div class="static-background">
+                  <div class="background-masker btn-divide-left"></div>
                 </div>
-                <div class="cardArea">
-                    <div class="loading">
-                        <div class="main-item">
-                            <div class="static-background">
-                              <div class="background-masker btn-divide-left"></div>
-                            </div>
-                            
-                            <div class="animated-background">
-                              <div class="background-masker btn-divide-left"></div>
-                            </div>
-                            
-                            <div class="shared-dom">
-                              <div class="sub-rect pure-background"></div>
-                              <!-- <div class="sub-rect pure-background"></div> -->
-                              <!-- <div class="sub-rect pure-background"></div> -->
-                              <div class="sub-rect pure-background"></div>
-                              <div class="sub-rect pure-background"></div>
-                              <div class="sub-rect pure-background"></div>
-                              <div class="sub-rect pure-background"></div>
-                              <div class="sub-rect pure-background"></div>
-                            </div>
-                            
-                            <!-- <div class="css-dom"></div> -->
-                          </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="cardTitle">
-                    <p>Statistiche</p>
-                </div>
-                <div class="cardArea">
 
+                <div class="animated-background">
+                  <div class="background-masker btn-divide-left"></div>
                 </div>
+
+                <div class="shared-dom">
+                  <div class="sub-rect pure-background"></div>
+                  <div class="sub-rect pure-background"></div>
+                  <div class="sub-rect pure-background"></div>
+                  <!-- <div class="sub-rect pure-background"></div> -->
+                  <!-- <div class="sub-rect pure-background"></div> -->
+                  <!-- <div class="sub-rect pure-background"></div> -->
+                  <!-- <div class="sub-rect pure-background"></div> -->
+                  <!-- <div class="sub-rect pure-background"></div> -->
+                </div>
+
+                <!-- <div class="css-dom"></div> -->
+              </div>
             </div>
+          </div>
         </div>
-        <p class="subtitle">Ultime perizie:</p>
-        <div class="lower">
-            <div class="minicard">
-                <div class="image"></div>
-                <p class="titleCard">Perizia 1</p>
-                <p class="paragraphCard">Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-            </div>
-            <div class="minicard"> 
-                <div class="image"></div>
-                <p class="titleCard">Perizia 2</p>
-                <p class="paragraphCard">Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-            </div>
-            <div class="minicard"> 
-                <div class="image"></div>
-                <p class="titleCard">Perizia 3</p>
-                <p class="paragraphCard">Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-            </div>
+        <div class="card">
+          <div class="cardTitle">
+            <p>Statistiche</p>
+          </div>
+          <div class="cardArea"></div>
         </div>
+      </div>
+      <p class="subtitle">Ultime perizie:</p>
+      <div class="lower">
+        <div class="minicard">
+          <div class="image"></div>
+          <p class="titleCard">Perizia 1</p>
+          <p class="paragraphCard">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </p>
+        </div>
+        <div class="minicard">
+          <div class="image"></div>
+          <p class="titleCard">Perizia 2</p>
+          <p class="paragraphCard">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </p>
+        </div>
+        <div class="minicard">
+          <div class="image"></div>
+          <p class="titleCard">Perizia 3</p>
+          <p class="paragraphCard">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </p>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>
