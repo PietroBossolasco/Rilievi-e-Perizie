@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 1337;
 dotenv.config({ path: ".env" });
 var app = express();
 const connectionString: any = process.env.connectionString;
-const DBNAME = "MongoDB_Esercizi";
-const collection = "mail";
+const DBNAME = "Perizie";
+const collection = "user";
 
 const corsOptions = {
   origin: function (origin: any, callback: any) {
@@ -63,4 +63,28 @@ app.use("/api/", (req: any, res: any, next: any) => {
       req["client"] = client;
       next();
     });
+});
+
+// Richieste DB
+app.post("/api/login", cors(corsOptions), (req: any, res: any) => {
+  // let query = url.parse(req.url, true).query;
+  let username = req.query.username;
+  let password = req.query.password;
+  let client = req["client"];
+  let db = client.db(DBNAME);
+  let mail = db.collection(collection);
+  mail.find({
+      username: username,
+      password: password,
+    })
+    .toArray()
+    .then((result: any) => {
+      if (result.length > 0) {
+        res.status(200);
+        res.send(result);
+      } else {
+        res.status(404);
+        res.send("Email o password errati");
+      }
+    })
 });
