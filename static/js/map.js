@@ -1,15 +1,7 @@
 "use strict";
 
-window.onload = function(){
-    const MAP_KEY = takeMapKey();
-    const URL = takeUrl();
-    var script = document.createElement('script');
-	script.type = 'text/javascript';
-	script.src = URL + '/js?v=3&key='+ MAP_KEY +'&callback=documentReady';
-	document.body.appendChild(script);
-
-    setTimeout(setMap, 10000);
-    
+window.onload = async function(){
+    loadGoogleApi().then(setMap)  
 }
 
 function setMap(){
@@ -55,4 +47,17 @@ function setMap(){
             }
 
             new google.maps.Marker(markerOptions2)
+}
+
+function loadGoogleApi() {
+	return new Promise((resolve, reject) => {
+        const MAP_KEY = takeMapKey();
+        const URL = takeUrl();
+		var script = document.createElement('script');
+		document.body.appendChild(script);
+		script.type = 'text/javascript';
+		script.src = URL + '/js?v=3&key=' + MAP_KEY;
+		script.onload = () => resolve()
+		script.onerror = function() {reject(new Error("errore sul caricamento"))}
+	})
 }
