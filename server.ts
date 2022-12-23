@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
 import express from "express";
 import cors from "cors";
+var bodyParser = require("body-parser");
 
 const PORT = process.env.PORT || 1337;
 dotenv.config({ path: ".env" });
@@ -65,26 +66,40 @@ app.use("/api/", (req: any, res: any, next: any) => {
     });
 });
 
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use(bodyParser.json({ limit: "50mb" }));
+
 // Richieste DB
-app.post("/api/login", cors(corsOptions), (req: any, res: any) => {
-  // let query = url.parse(req.url, true).query;
-  let username = req.query.username;
+app.get("/api/login/", (req: any, res: any, next: any) => {
+  let db = req.client.db(DBNAME);
+  let email = req.query.username;
   let password = req.query.password;
-  let client = req["client"];
-  let db = client.db(DBNAME);
-  let mail = db.collection(collection);
-  mail.find({
-      username: username,
-      password: password,
-    })
-    .toArray()
-    .then((result: any) => {
-      if (result.length > 0) {
-        res.status(200);
-        res.send(result);
+  console.log("----");
+  console.log(email);
+  console.log(password);
+  console.log("----");
+
+  db.collection(collection).findOne(
+    { username: email },
+    (err: any, data: any) => {
+      if (err) {
+        res.status(500);
+        res.send("Errore Login");
       } else {
-        res.status(404);
-        res.send("Email o password errati");
+        if (data != null) {
+          if (data.password == password && data.username == email) {
+            res.status(200);
+            res.send(data);
+          } else if (data.password != password || data.username != email) {
+            res.status(401);
+            res.send("Credenziali non valide");
+          }
+        } else {
+          res.status(401);
+          res.send("Credenziali non valide");
+        }
       }
-    })
+      req.client.close();
+    }
+  );
 });

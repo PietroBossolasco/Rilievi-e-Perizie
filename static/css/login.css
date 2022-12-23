@@ -44,7 +44,7 @@
     outline: 0;
 }
 
-.wrapper div{
+.wrapper #btnLogin{
     width: 80%;
     height: 50px;
     margin: 25px auto;
@@ -58,7 +58,7 @@
     color: #fff;
 }
 
-.wrapper div:hover{
+.wrapper #btnLogin:hover{
     cursor: pointer;
     transition-duration: .2s;
     background-color: rgba(0, 0, 0, 0.12);;
@@ -66,9 +66,17 @@
 }
 
 .bg{
-    background: linear-gradient(96.1deg, rgba(0, 23, 54, 0.88) 2.94%, rgba(4, 42, 92, 0.88) 95.89%);
+    background: linear-gradient(96.1deg, #001736e0 2.94%, rgba(4, 42, 92, 0.88) 95.89%);
     display: flex;
     width: 100vw;
     height: 100vh;
     z-index: -1;
+}
+
+.err{
+    color: red;
+    font-size: 13pt;
+    font-weight: 300;
+    margin-top: 10px;
+    display: none;
 }

@@ -3,15 +3,42 @@ window.onload = function(){
 
     btnLogin.on("click", async function(){
         let username = $("input").eq(0).val();
-        let password = CryptoJS.SHA256($("input").eq(1).val());
+        let password = CryptoJS.SHA256($("input").eq(1).val()).toString(CryptoJS.enc.Hex)
         console.log(password)
 
-        let req = inviaRichiesta("POST", "/api/login", { "username": username, "password": password });
-        req.fail(errore);
+        let req = inviaRichiesta("GET", "/api/login", { "username": username, "password": password });
+        req.fail(() => {
+            if(req.status == 401){
+                if(data.role != 0){
+                    $(".err").eq(0).text("Credenziali non valide");
+                    $(".err").eq(0).fadeIn(100);
+                }
+            }
+        }
+        );
         req.done((data) => {
-            console.log(data);
-        })
+            console.log(JSON.parse(data));
 
-        console.log(response);
+            if(data.role != 0){
+                $(".err").eq(0).text("Non puoi accedere con questo ruolo");
+                $(".err").eq(0).fadeIn(100);
+            }
+            else{
+                $(".err").eq(0).fadeOut(100);
+                let token = generateRandomString(32);
+                localStorage.setItem("token", token);
+                window.location.href = "index.html";
+            }
+        })
     });
 }
+
+function generateRandomString(iLen) {
+    var sRnd = '';
+    var sChrs = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+    for (var i = 0; i < iLen; i++) {
+      var randomPoz = Math.floor(Math.random() * sChrs.length);
+      sRnd += sChrs.substring(randomPoz, randomPoz + 1);
+    }
+    return sRnd;
+  }
