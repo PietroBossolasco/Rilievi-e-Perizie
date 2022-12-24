@@ -103,3 +103,15 @@ app.get("/api/login/", (req: any, res: any, next: any) => {
     }
   );
 });
+
+app.get("/api/setToken", (req: any, res: any, next: any) => {
+  let db = req.client.db(DBNAME);
+  let token = req.query.token;
+  let username = req.query.email;
+  console.log("----");
+  console.log(username);
+  console.log(token);
+  console.log("----");
+
+  db.collection(collection).updateOne({username : },{$push: {token: token}});
+})

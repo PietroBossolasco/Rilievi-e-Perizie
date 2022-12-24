@@ -17,8 +17,8 @@ window.onload = function(){
         }
         );
         req.done((data) => {
-            console.log(JSON.parse(data));
-
+            data = JSON.parse(data);
+            console.log(data);
             if(data.role != 0){
                 $(".err").eq(0).text("Non puoi accedere con questo ruolo");
                 $(".err").eq(0).fadeIn(100);
@@ -27,7 +27,9 @@ window.onload = function(){
                 $(".err").eq(0).fadeOut(100);
                 let token = generateRandomString(32);
                 localStorage.setItem("token", token);
-                window.location.href = "index.html";
+                localStorage.setItem("username", data.username);
+                console.log(localStorage.getItem("token"));
+                // window.location.href = "index.html";
             }
         })
     });
