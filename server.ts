@@ -107,11 +107,40 @@ app.get("/api/login/", (req: any, res: any, next: any) => {
 app.get("/api/setToken", (req: any, res: any, next: any) => {
   let db = req.client.db(DBNAME);
   let token = req.query.token;
-  let username = req.query.email;
+  let username = req.query.username;
   console.log("----");
   console.log(username);
   console.log(token);
   console.log("----");
 
-  db.collection(collection).updateOne({username : },{$push: {token: token}});
+  db.collection(collection).updateOne({username : username},{$push: {token: token}},
+    (err: any, data: any) => {
+      if (err) {
+        console.log("Errore esecuzione query " + err.message);
+      } else {
+        res.write(JSON.stringify(data));
+        res.end();
+      }
+    });
+})
+
+app.get("api/deleteToken", (req: any, res: any, next: any) => {
+  let db = req.client.db(DBNAME);
+  let token = req.query.token;
+  let username = req.query.username;
+  console.log("----");
+  console.log(username);
+  console.log(token);
+  console.log("----");
+
+  // Delete the sting "token" from the array
+  db.collection(collection).deleteOne({username : username, "$elemMatch" : {"token"}},{$pull: {token: token}},
+    (err: any, data: any) => {
+      if (err) {
+        console.log("Errore esecuzione query " + err.message);
+      } else {
+        res.write(JSON.stringify(data));
+        res.end();
+      }
+    });
 })

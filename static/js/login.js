@@ -25,11 +25,36 @@ window.onload = function(){
             }
             else{
                 $(".err").eq(0).fadeOut(100);
-                let token = generateRandomString(32);
-                localStorage.setItem("token", token);
-                localStorage.setItem("username", data.username);
-                console.log(localStorage.getItem("token"));
-                // window.location.href = "index.html";
+                if((localStorage.getItem("token") != null && localStorage.getItem("token").length == 10) && (localStorage.getItem("username") != null && localStorage.getItem("username").length > 0 && localStorage.getItem("username") == data.username)){
+                    let actualToken = localStorage.getItem("token");
+                    let actualUsername = localStorage.getItem("username");
+
+                    let req = inviaRichiesta("GET", "/api/deleteToken", { "username": actualUsername });
+                    req.fail(() => {
+                        console.log("Errore");
+                        $(".err").eq(0).text("Errore nella richiesta");
+                        $(".err").eq(0).fadeIn(100);
+                    })
+                    req.done((data) => {
+                        console.log(data);
+                    })
+                }else{
+                    let token = generateRandomString(32);
+                    localStorage.setItem("token", token);
+                    localStorage.setItem("username", data.username);
+                    console.log(localStorage.getItem("token"));
+                    let req = inviaRichiesta("GET", "/api/setToken", { "username": data.username, "token": CryptoJS.SHA256(token).toString(CryptoJS.enc.Hex) });
+                    req.fail(() => {
+                        console.log("Errore");
+                        $(".err").eq(0).text("Errore nella richiesta");
+                        $(".err").eq(0).fadeIn(100);
+                    })
+                    req.done((data) => {
+                        console.log("Token salvato");
+                        console.log(data);
+                        // window.location.href = "index.html";
+                    })
+                }
             }
         })
     });
