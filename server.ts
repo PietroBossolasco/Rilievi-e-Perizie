@@ -188,3 +188,21 @@ app.get("api/setSession", (req: any, res: any, next: any) => {
     })
   );
 });
+
+app.get("/api/setNewUser", (req: any, res: any, next: any) => {
+  let db = req.client.db(DBNAME);
+  let user = JSON.parse(req.query.user);
+  console.log("----");
+  console.log(user);
+
+  db.collection(collection).insertOne({ username : user.username, nome : user.nome, cognome : user.cognome, role : user.role, password : user.password, profilePic : user.profilePic, email : user.email, token : []}, (err: any, data: any) => {
+    if (err) {
+      res.write("Errore esecuzione query " + err.message)
+      res.status(401);
+    } else {
+      res.write("Utente inserito correttamente");
+      res.end();
+      res.status(200);
+    }
+  });
+});

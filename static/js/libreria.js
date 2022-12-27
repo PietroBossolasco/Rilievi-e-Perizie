@@ -14,7 +14,7 @@ function inviaRichiesta(method, url, parameters = {}) {
         data: parameters,
         contentType: contentType,
         dataType: "text",
-        timeout: 5000
+        timeout: 50000
     });
 }
 

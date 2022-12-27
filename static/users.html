@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="css/template.css" />
   <link rel="stylesheet" href="css/users.css" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
   <script src="js/template.js"></script>
   <script src="js/libreria.js"></script>
   <script src="js/users.js"></script>
@@ -52,6 +54,48 @@
   </div>
 
   <div class="wrapper">
+    <div class="newUser">
+      <div class="newWrapper">
+        <p class="title">Nuovo utente</p>
+        <div class="form">
+          <div class="input">
+            <p>Username</p>
+            <input type="text" />
+          </div>
+          <div class="input">
+            <p>Nome</p>
+            <input type="text" />
+          </div>
+          <div class="input">
+            <p>Cognome</p>
+            <input type="text" />
+          </div>
+          <div class="input">
+            <p>Email</p>
+            <input type="text" />
+          </div>
+          <div class="input">
+            <p>Ruolo</p>
+            <select>
+              <option value="0">Amministratore</option>
+              <option value="1">Perito</option>
+            </select>
+          </div>
+          <div class="input">
+            <p>Password</p>
+            <input type="password" />
+          </div>
+          <div class="input">
+            <p>Foto profilo</p>
+            <input type="url" />
+          </div>
+        </div>
+        <div class="btn leave">Annulla</div>
+        <div class="btn save">Salva</div>
+      </div>
+    </div>
+
+    <div class="addUser">Aggiungi utenti</div>
     <table>
       <thead>
         <td>Username</td>
