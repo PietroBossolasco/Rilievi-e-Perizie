@@ -1,0 +1,35 @@
+table{
+    /* border: 1px solid #000; */
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+    width: 80%;
+    margin-left: 10%;
+    margin-top: 50px;
+    border-radius: 10px;
+    box-shadow: rgba(99, 99, 99, 0.4) 0px 2px 8px 0px;
+    line-height: 40px;
+}
+
+thead{
+    border-radius: 10px 0px 10px 0px;
+    background-color: rgba(4, 42, 92, 0.88);
+    color: white;
+    font-weight: 400;
+    font-size: 20px;
+    
+}
+
+thead td{
+    padding-left: 10px;
+    width: 20%;
+}
+
+tbody .gray{
+    background-color: #f2f2f2;
+}
+
+tbody td{
+    padding-left: 10px;
+    width: 20%;
+}

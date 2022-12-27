@@ -70,6 +70,25 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(bodyParser.json({ limit: "50mb" }));
 
 // Richieste DB
+app.get("/api/takeAllUsers", (req: any, res: any, next: any) => {
+  console.log("Take all users");
+  let db = req.client.db(DBNAME);
+  db.collection(collection)
+    .find({ role: 1 })
+    .toArray((err: any, data: any) => {
+      if (err) {
+        console.log("Errore esecuzione query " + err.message);
+        res.write(JSON.stringify(err));
+        res.status(401);
+      } else {
+        res.status(200);
+        res.write(JSON.stringify(data));
+        res.end();
+      }
+      req.client.close();
+    });
+});
+
 app.get("/api/login/", (req: any, res: any, next: any) => {
   let db = req.client.db(DBNAME);
   let email = req.query.username;
@@ -113,7 +132,9 @@ app.get("/api/setToken", (req: any, res: any, next: any) => {
   console.log(token);
   console.log("----");
 
-  db.collection(collection).updateOne({username : username},{$push: {token: token}},
+  db.collection(collection).updateOne(
+    { username: username },
+    { $push: { token: token } },
     (err: any, data: any) => {
       if (err) {
         console.log("Errore esecuzione query " + err.message);
@@ -121,8 +142,9 @@ app.get("/api/setToken", (req: any, res: any, next: any) => {
         res.write(JSON.stringify(data));
         res.end();
       }
-    });
-})
+    }
+  );
+});
 
 app.get("api/deleteToken", (req: any, res: any, next: any) => {
   let db = req.client.db(DBNAME);
@@ -134,7 +156,9 @@ app.get("api/deleteToken", (req: any, res: any, next: any) => {
   console.log("----");
 
   // Delete the sting "token" from the array
-  db.collection(collection).deleteOne({username : username, "$elemMatch" : {"token"}},{$pull: {token: token}},
+  db.collection(collection).deleteOne(
+    { username: username, $elemMatch: { token: token } },
+    { $pull: { token: token } },
     (err: any, data: any) => {
       if (err) {
         console.log("Errore esecuzione query " + err.message);
@@ -142,5 +166,25 @@ app.get("api/deleteToken", (req: any, res: any, next: any) => {
         res.write(JSON.stringify(data));
         res.end();
       }
-    });
-})
+    }
+  );
+});
+
+app.get("api/setSession", (req: any, res: any, next: any) => {
+  let username = req.query.username;
+  let key = req.query.key;
+  var session = require("express-session");
+  app.use(
+    session({
+      secret: "myKeyword",
+      name: "sessionId",
+      // proprietà legate allo store
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: false, // true per accessi https
+        maxAge: 6000000, // durata in msec
+      },
+    })
+  );
+});
