@@ -19,10 +19,8 @@ window.onload = function () {
       nome: $(".newUser input").eq(1).val(),
       cognome: $(".newUser input").eq(2).val(),
       email: $(".newUser input").eq(3).val(),
-      password: CryptoJS.SHA256($(".newUser input").eq(4).val()).toString(
-        CryptoJS.enc.Hex
-      ),
-      profilePic: $(".newUser input").eq(5).val(),
+      password: CryptoJS.SHA256("password").toString(CryptoJS.enc.Hex),
+      profilePic: $(".newUser input").eq(4).val(),
       role: parseInt($(".newUser select").eq(0).val()),
     };
     console.log(data);
@@ -32,19 +30,17 @@ window.onload = function () {
     });
     req.fail(errore);
     req.done(function (data) {
-      if (data.result == "ok") {
-        let input = $(".newUser input");
-        for (let item of input) {
-          item.value = "";
-        }
-        $(".newUser").hide();
-        Swal.fire({
-          title: "Utente inserito con successo",
-          icon: "success",
-          showCloseButton: true,
-        });
-        takeAllUsers();
+      let input = $(".newUser input");
+      for (let item of input) {
+        item.value = "";
       }
+      $(".newUser").hide();
+      Swal.fire({
+        title: "Utente inserito con successo",
+        icon: "success",
+        showCloseButton: true,
+      });
+      takeAllUsers();
     });
   });
 };
