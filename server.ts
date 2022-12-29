@@ -200,7 +200,8 @@ app.get("/api/setNewUser", (req: any, res: any, next: any) => {
       res.write("Errore esecuzione query " + err.message)
       res.status(401);
     } else {
-      res.write("Utente inserito correttamente");
+      console.log(data)
+      res.write("ok");
       res.end();
       res.status(200);
     }
