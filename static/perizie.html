@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/template.css" />
+    <link rel="stylesheet" href="css/perizie.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="js/template.js"></script>
     <title>Perizie - Rilievi e perizie</title>
@@ -46,6 +47,33 @@
       </div>
     </div>
 
-    <div class="wrapper"></div>
+    <div class="wrapper">
+      <div class="filters">
+        <p>Autore:</p>
+        <select id="author">
+          <option value="0">Tutti</option>
+          <option value="1">Pietro BOSSOLASCO</option>
+          <option value="2">Mario ROSSI</option>
+          <option value="3">Luigi VERDI</option>
+        </select>
+      </div>
+
+      <table>
+        <thead>
+          <th>Autore</th>
+          <th>Posizione</th>
+          <th>Data e ora</th>
+          <th>Stato</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pietro Bossolasco</td>
+            <td>Novara</td>
+            <td>12/10/2022</td>
+            <td> </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </body>
 </html>
