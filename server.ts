@@ -2,17 +2,23 @@ import http from "http";
 import url from "url";
 import fs from "fs";
 import dotenv from "dotenv";
-import { MongoClient, ObjectId } from "mongodb";
+import { Collection, Double, MongoClient, ObjectId } from "mongodb";
 import express from "express";
+import { Request, Response, NextFunction } from "express";
 import cors from "cors";
 var bodyParser = require("body-parser");
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import fileUpload, { UploadedFile } from "express-fileupload";
 
 const PORT = process.env.PORT || 1337;
 dotenv.config({ path: ".env" });
 var app = express();
 const connectionString: any = process.env.connectionString;
 const DBNAME = "Perizie";
-const collection = "user";
+const usercollection = "user";
+const privateKey = fs.readFileSync("keys/privateKey.pem", "utf8");
+const DURATA_TOKEN = 5000;
 
 const corsOptions = {
   origin: function (origin: any, callback: any) {
@@ -49,31 +55,163 @@ app.use("/", (req: any, res: any, next: any) => {
 });
 
 //cerca le risorse nella cartella segnata nel path e li restituisce
-app.use("/", express.static("./static"));
-
-// Apertura della connessione
-app.use("/api/", (req: any, res: any, next: any) => {
-  let connection = new MongoClient(connectionString);
-  connection
-    .connect()
-    .catch((err: any) => {
-      res.status(503);
-      res.send("Errore di connessione al DB");
-    })
-    .then((client: any) => {
-      req["client"] = client;
-      next();
-    });
+/* *********************** (Sezione 2) Middleware ********************* */
+// 1. Request log
+app.use("/", function (req, res, next) {
+  console.log("** " + req.method + " ** : " + req.originalUrl);
+  next();
 });
 
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
-app.use(bodyParser.json({ limit: "50mb" }));
+// 2 - risorse statiche
+app.use("/", express.static("./static"));
+
+// 3 - lettura dei parametri post
+app.use("/", express.json({ limit: "20mb" }));
+app.use("/", express.urlencoded({ extended: true, limit: "20mb" }));
+
+// 4 - binary upload
+app.use(
+  "/",
+  fileUpload({
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20*1024*1024 // 20 M
+  })
+);
+
+// 5 - log dei parametri
+app.use("/", function (req, res, next) {
+  if (Object.keys(req.query).length > 0)
+    console.log("        Parametri GET: ", req.query);
+  if (Object.keys(req.body).length != 0)
+    console.log("        Parametri BODY: ", req.body);
+  next();
+});
+
+// 6. cors
+app.use("/", cors(corsOptions));
+
+// 7. gestione login
+app.post(
+  "/api/login",
+  function (req: Request, res: Response, next: any) {
+    let connection = new MongoClient(connectionString as string);
+    connection
+      .connect()
+      .then((client: MongoClient) => {
+        const collection = client.db(DBNAME).collection(usercollection);
+        let regex = new RegExp(`^${req.body.username}$`, "i");
+        collection
+          .findOne({ username: regex })
+          .then((dbUser: any) => {
+            if (!dbUser) {
+              res.status(401); // user o password non validi
+              res.send("User not found");
+            } else {
+              //confronto la password
+              console.log(req.body.password);
+              console.log(dbUser.password);
+              bcrypt.compare(
+                req.body.password,
+                dbUser.password,
+                (err: Error, ris: Boolean) => {
+                  if (err) {
+                    res.status(500);
+                    res.send("Errore bcrypt " + err.message);
+                    console.log(err.stack);
+                  } else {
+                    if (!ris) {
+                      // password errata
+                      res.status(401);
+                      res.send("Wrong password");
+                    } else {
+                      let token = createToken(dbUser);
+                      res.setHeader("Authorization", token);
+                      // Per permettere le richieste extra domain
+                      res.setHeader(
+                        "Access-Control-Exspose-Headers",
+                        "Authorization"
+                      );
+                      res.send({ ris: "ok" });
+                    }
+                  }
+                }
+              );
+            }
+          })
+          .catch((err: Error) => {
+            res.status(500);
+            res.send("Query error " + err.message);
+            console.log(err.stack);
+          })
+          .finally(() => {
+            client.close();
+          });
+      })
+      .catch((err: Error) => {
+        res.status(503);
+        res.send("Database service unavailable");
+      });
+  }
+);
+
+function createToken(user: any) {
+  let time: any = new Date().getTime() / 1000;
+  let now = parseInt(time); //Data attuale espressa in secondi
+  let payload = {
+    iat: user.iat || now,
+    exp: now + DURATA_TOKEN,
+    _id: user._id,
+    username: user.username,
+  };
+  let token = jwt.sign(payload, privateKey);
+  console.log("Creato nuovo token " + token);
+  return token;
+}
+
+// 8. gestione Logout
+
+// 9. Controllo del Token
+app.use("/api", function (req: any, res, next) {
+  if (!req.headers["Authorization"]) {
+    res.status(403);
+    res.send("Token mancante");
+  } else {
+    let token: any = req.headers.authorization;
+    jwt.verify(token, privateKey, (err: any, payload: any) => {
+      if (err) {
+        res.status(403);
+        res.send("Token scaduto o corrotto");
+      } else {
+        let newToken = createToken(payload);
+        res.setHeader("Authorization", token);
+        // Per permettere le richieste extra domain
+        res.setHeader("Access-Control-Exspose-Headers", "Authorization");
+        req["payload"] = payload;
+        next();
+      }
+    });
+  }
+});
+
+// 10. Apertura della connessione
+app.use("/api/", function (req: any, res: any, next: NextFunction) {
+  let connection = new MongoClient(connectionString as string);
+  connection
+    .connect()
+    .then((client: any) => {
+      req["connessione"] = client;
+      next();
+    })
+    .catch((err: any) => {
+      let msg = "Errore di connessione al db";
+      res.status(503).send(msg);
+    });
+});
 
 // Richieste DB
 app.get("/api/takeAllUsers", (req: any, res: any, next: any) => {
   console.log("Take all users");
   let db = req.client.db(DBNAME);
-  db.collection(collection)
+  db.collection(usercollection)
     .find({ role: 1 })
     .toArray((err: any, data: any) => {
       if (err) {
@@ -89,121 +227,33 @@ app.get("/api/takeAllUsers", (req: any, res: any, next: any) => {
     });
 });
 
-app.get("/api/login/", (req: any, res: any, next: any) => {
-  let db = req.client.db(DBNAME);
-  let email = req.query.username;
-  let password = req.query.password;
-  console.log("----");
-  console.log(email);
-  console.log(password);
-  console.log("----");
-
-  db.collection(collection).findOne(
-    { username: email },
-    (err: any, data: any) => {
-      if (err) {
-        res.status(500);
-        res.send("Errore Login");
-      } else {
-        if (data != null) {
-          if (data.password == password && data.username == email) {
-            res.status(200);
-            res.send(data);
-          } else if (data.password != password || data.username != email) {
-            res.status(401);
-            res.send("Credenziali non valide");
-          }
-        } else {
-          res.status(401);
-          res.send("Credenziali non valide");
-        }
-      }
-      req.client.close();
-    }
-  );
-});
-
-app.get("/api/setToken", (req: any, res: any, next: any) => {
-  let db = req.client.db(DBNAME);
-  let token = req.query.token;
-  let username = req.query.username;
-  console.log("----");
-  console.log(username);
-  console.log(token);
-  console.log("----");
-
-  db.collection(collection).updateOne(
-    { username: username },
-    { $push: { token: token } },
-    (err: any, data: any) => {
-      if (err) {
-        console.log("Errore esecuzione query " + err.message);
-      } else {
-        res.write(JSON.stringify(data));
-        res.end();
-      }
-    }
-  );
-});
-
-app.get("api/deleteToken", (req: any, res: any, next: any) => {
-  let db = req.client.db(DBNAME);
-  let token = req.query.token;
-  let username = req.query.username;
-  console.log("----");
-  console.log(username);
-  console.log(token);
-  console.log("----");
-
-  // Delete the sting "token" from the array
-  db.collection(collection).deleteOne(
-    { username: username, $elemMatch: { token: token } },
-    { $pull: { token: token } },
-    (err: any, data: any) => {
-      if (err) {
-        console.log("Errore esecuzione query " + err.message);
-      } else {
-        res.write(JSON.stringify(data));
-        res.end();
-      }
-    }
-  );
-});
-
-app.get("api/setSession", (req: any, res: any, next: any) => {
-  let username = req.query.username;
-  let key = req.query.key;
-  var session = require("express-session");
-  app.use(
-    session({
-      secret: "myKeyword",
-      name: "sessionId",
-      // proprietà legate allo store
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: false, // true per accessi https
-        maxAge: 6000000, // durata in msec
-      },
-    })
-  );
-});
-
 app.get("/api/setNewUser", (req: any, res: any, next: any) => {
   let db = req.client.db(DBNAME);
   let user = JSON.parse(req.query.user);
   console.log("----");
   console.log(user);
 
-  db.collection(collection).insertOne({ username : user.username, nome : user.nome, cognome : user.cognome, role : user.role, password : user.password, profilePic : user.profilePic, email : user.email, token : []}, (err: any, data: any) => {
-    if (err) {
-      res.write("Errore esecuzione query " + err.message)
-      res.status(401);
-    } else {
-      console.log(data)
-      res.write("ok");
-      res.end();
-      res.status(200);
+  db.collection(usercollection).insertOne(
+    {
+      username: user.username,
+      nome: user.nome,
+      cognome: user.cognome,
+      role: user.role,
+      password: user.password,
+      profilePic: user.profilePic,
+      email: user.email,
+      token: [],
+    },
+    (err: any, data: any) => {
+      if (err) {
+        res.write("Errore esecuzione query " + err.message);
+        res.status(401);
+      } else {
+        console.log(data);
+        res.write("ok");
+        res.end();
+        res.status(200);
+      }
     }
-  });
+  );
 });
