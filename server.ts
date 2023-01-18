@@ -18,6 +18,7 @@ const connectionString: any = process.env.connectionString;
 const DBNAME = "Perizie";
 const usercollection = "user";
 const privateKey = fs.readFileSync("keys/privateKey.pem", "utf8");
+dotenv.config({ path: ".env" });
 const DURATA_TOKEN = 5000;
 
 const corsOptions = {
@@ -90,68 +91,65 @@ app.use("/", function (req, res, next) {
 app.use("/", cors(corsOptions));
 
 // 7. gestione login
-app.post(
-  "/api/login",
-  function (req: Request, res: Response, next: any) {
-    let connection = new MongoClient(connectionString as string);
-    connection
-      .connect()
-      .then((client: MongoClient) => {
-        const collection = client.db(DBNAME).collection(usercollection);
-        let regex = new RegExp(`^${req.body.username}$`, "i");
-        collection
-          .findOne({ username: regex })
-          .then((dbUser: any) => {
-            if (!dbUser) {
-              res.status(401); // user o password non validi
-              res.send("User not found");
-            } else {
-              //confronto la password
-              console.log(req.body.password);
-              console.log(dbUser.password);
-              bcrypt.compare(
-                req.body.password,
-                dbUser.password,
-                (err: Error, ris: Boolean) => {
-                  if (err) {
-                    res.status(500);
-                    res.send("Errore bcrypt " + err.message);
-                    console.log(err.stack);
+app.post("/api/login", function (req: Request, res: Response, next: any) {
+  let connection = new MongoClient(connectionString as string);
+  connection
+    .connect()
+    .then((client: MongoClient) => {
+      const collection = client.db(DBNAME).collection(usercollection);
+      let regex = new RegExp(`^${req.body.username}$`, "i");
+      collection
+        .findOne({ username: regex })
+        .then((dbUser: any) => {
+          if (!dbUser) {
+            res.status(401); // user o password non validi
+            res.send("Utente non trovato");
+          } else {
+            //confronto la password
+            console.log(req.body.password);
+            console.log(dbUser.password);
+            bcrypt.compare(
+              req.body.password,
+              dbUser.password,
+              (err: Error, ris: Boolean) => {
+                if (err) {
+                  res.status(500);
+                  res.send("Errore bcrypt " + err.message);
+                  console.log(err.stack);
+                } else {
+                  if (!ris) {
+                    // password errata
+                    res.status(401);
+                    res.send("Password errata");
                   } else {
-                    if (!ris) {
-                      // password errata
-                      res.status(401);
-                      res.send("Wrong password");
-                    } else {
-                      let token = createToken(dbUser);
-                      res.setHeader("Authorization", token);
-                      // Per permettere le richieste extra domain
-                      res.setHeader(
-                        "Access-Control-Exspose-Headers",
-                        "Authorization"
-                      );
-                      res.send({ ris: "ok" });
-                    }
+                    let token = newToken(dbUser);
+                    res.setHeader("Authorization", token);
+                    // Per permettere le richieste extra domain
+                    res.setHeader(
+                      "Access-Control-Exspose-Headers",
+                      "Authorization"
+                    );
+                    res.send({ ris: "ok" });
                   }
                 }
-              );
-            }
-          })
-          .catch((err: Error) => {
-            res.status(500);
-            res.send("Query error " + err.message);
-            console.log(err.stack);
-          })
-          .finally(() => {
-            client.close();
-          });
-      })
-      .catch((err: Error) => {
-        res.status(503);
-        res.send("Database service unavailable");
-      });
-  }
-);
+              }
+            );
+          }
+        })
+        .catch((err: Error) => {
+          res.status(500);
+          res.send("Query error " + err.message);
+          console.log(err.stack);
+        })
+        .finally(() => {
+          client.close();
+        });
+    })
+    .catch((err: Error) => {
+      res.status(503);
+      res.send("Database service unavailable");
+    });
+});
 
 function createToken(user: any) {
   let time: any = new Date().getTime() / 1000;
@@ -165,6 +163,12 @@ function createToken(user: any) {
   let token = jwt.sign(payload, privateKey);
   console.log("Creato nuovo token " + token);
   return token;
+}
+
+function newToken(user: any) {
+  let time: any = new Date().getTime();
+  let now = parseInt(time);
+  return bcrypt.hashSync(user.username + now, 10);
 }
 
 // 8. gestione Logout
