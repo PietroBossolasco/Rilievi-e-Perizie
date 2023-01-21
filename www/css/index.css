@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -24,8 +27,8 @@ body {
     -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
-    background-color:#E4E4E4;
-    background-image:linear-gradient(to bottom, #A7A7A7 0%, #E4E4E4 51%);
+    background-color:white;
+    /* font-family: 'Urbanist', sans-serif; */
     font-family: system-ui, -apple-system, -apple-system-font, 'Segoe UI', 'Roboto', sans-serif;
     font-size:12px;
     height:100vh;
@@ -33,22 +36,127 @@ body {
     padding:0px;
     /* Padding to avoid the "unsafe" areas behind notches in the screen */
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-    text-transform:uppercase;
+    /* text-transform:uppercase; */
     width:100%;
+    overflow-x: hidden;
 }
 
-/* Portrait layout (default) */
 .app {
-    background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
     position:absolute;             /* position in the center of the screen */
-    left:50%;
-    top:50%;
-    height:50px;                   /* text area height */
-    width:225px;                   /* text area width */
-    text-align:center;
-    padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
-    margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
-                                   /* offset horizontal: half of text area width */
+    left:0;
+    top:0;
+    height: 100vh;                   /* text area height */
+    width:94vw;                   /* text area width */
+}
+
+.bottombar{
+    background-color:white;
+    bottom:0px;
+    height:7vh;
+    left: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    z-index: 100;
+    position:fixed;
+    width:100%;
+    box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px;
+}
+
+.perizie{
+    width: 100%;
+    margin-top: 20px;
+    margin-right: 10%;
+}
+
+.title{
+    text-align: right;
+    font-size: 15pt;
+    color: gray;
+    /* margin-right: 5%; */
+}
+
+.page{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.hidden{
+    display:none;
+}
+
+.card{
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px;
+    margin-left: 5% !important;
+    margin-top: 20px;
+    padding: 10px;
+    width: 90%;
+}
+
+.cardTitle{
+    font-size: 16pt;
+    margin-bottom: 10px;
+    margin-top: 0;
+    color: black;
+    text-align: left;
+}
+
+.home{
+    background-image: url(../img/homeselected.svg);
+    width: 5vh;
+    height: 5vh;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.profile{
+    background-image: url(../img/usernotselected.svg);
+    width: 5vh;
+    height: 5vh;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.cardDate{
+    font-size: 12pt;
+    margin-bottom: 10px;
+    text-align: left;
+    color: gray;
+}
+
+.nuovaPerizia{
+    width: 90vw;
+    margin-left: 5vw;
+    height: 50px;
+    margin-top: 40px;
+    background: linear-gradient(96.1deg, rgba(0, 23, 54, 0.88) 2.94%, rgba(4, 42, 92, 0.88) 95.89%);
+    text-align: center;
+    line-height: 50px;
+    font-size: 13pt;
+    border-radius: 5px;
+}
+
+.content-wrapper {
+    position: absolute;
+    padding:0;
+    top: 65px;
+    left: 0;
+    right: 0;
+    bottom:0;
+    background: #CCC;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Landscape layout (with min-width) */
@@ -59,33 +167,6 @@ body {
         margin:-90px 0px 0px -198px;  /* offset vertical: half of image height */
                                       /* offset horizontal: half of image width and text area width */
     }
-}
-
-h1 {
-    font-size:24px;
-    font-weight:normal;
-    margin:0px;
-    overflow:visible;
-    padding:0px;
-    text-align:center;
-}
-
-.event {
-    border-radius:4px;
-    color:#FFFFFF;
-    font-size:12px;
-    margin:0px 30px;
-    padding:2px 0px;
-}
-
-.event.listening {
-    background-color:#333333;
-    display:block;
-}
-
-.event.received {
-    background-color:#4B946A;
-    display:none;
 }
 
 #deviceready.ready .event.listening { display: none; }
@@ -103,8 +184,8 @@ h1 {
 }
 
 
-@media screen and (prefers-color-scheme: dark) {
+/* @media screen and (prefers-color-scheme: dark) {
     body {
         background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
     }
-}
+} */
