@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src *;
+        script-src * 'unsafe-inline';
+        style-src * 'unsafe-inline';
+        img-src 'self' data: content:; "
+    />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, width=device-width, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="stylesheet" href="css/login.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/libreria.js"></script>
+    <title>Perizie</title>
+  </head>
+  <body>
+    <div class="load">
+      <div class="loadingio-spinner-pulse-j2rx94pzpek"><div class="ldio-is7ssl39t6">
+        <div></div><div></div><div></div>
+        </div></div>
+    </div>
+    <p class="title">BOSSOLASCO ASSICURAZIONI</p>
+    <p class="err"></p>
+    <div class="input">
+        <input type="text" id="username" placeholder="Username" /><br>
+        <input type="password" id="password" placeholder="Password" /><br>
+    </div>
+    <div class="button">Login</div>
+    <script src="cordova.js"></script>
+    <script src="js/login.js"></script>
+  </body>
+</html>
