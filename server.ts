@@ -322,3 +322,20 @@ app.get("/api/info", (req: any, res: any, next: any) => {
   res.end();
   res.status(200);
 });
+
+app.get("/api/dbInfo", (req: any, res: any, next: any) => {
+  let db = req.client.db(DBNAME);
+  db.collection(usercollection).findOne(
+    { username: req.query.username },
+    (err: any, data: any) => {
+      if (err) {
+        res.write("Errore esecuzione query " + err.message);
+        res.status(401);
+      } else {
+        res.write(JSON.stringify(data));
+        res.end();
+        res.status(200);
+      }
+    }
+  );
+});
