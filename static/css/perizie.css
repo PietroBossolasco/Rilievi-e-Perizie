@@ -55,3 +55,7 @@ table tbody tr:hover{
     cursor: pointer;
     transition-duration: .2s;
 }
+
+option{
+    font-size: 13pt;
+}

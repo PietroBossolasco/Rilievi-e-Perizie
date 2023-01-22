@@ -11,12 +11,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import { Console } from "console";
+import https from "https";
 
 let info;
 let tokensave: string = "";
 let dbsaved : any;
 
 const PORT = process.env.PORT || 1337;
+const HTTPS_PORT = 1338
 dotenv.config({ path: ".env" });
 var app = express();
 const connectionString: any = process.env.connectionString;
@@ -24,6 +26,7 @@ const DBNAME = "Perizie";
 const usercollection = "user";
 const privateKey = fs.readFileSync("keys/privateKey.pem", "utf8");
 const certificate = fs.readFileSync("keys/certificate.crt", "utf8");
+const credentials = { "key": privateKey, "cert": certificate };
 dotenv.config({ path: ".env" });
 const DURATA_TOKEN = 5000000;
 
@@ -33,16 +36,23 @@ const corsOptions = {
   },
   credentials: true,
 };
+const whitelist = ["http://localhost:1337", "https://localhost:1338"]
 
 //CREAZIONE E AVVIO DEL SERVER HTTP
 let server = http.createServer(app);
-let paginaErrore: string = "";
-
 server.listen(PORT, () => {
   init();
-  console.log("Server in ascolto sulla porta " + PORT);
+  console.log("Server http in ascolto sulla porta " + PORT);
   console.log(connectionString);
 });
+let httpsServer = https.createServer(credentials, app);
+httpsServer.listen(HTTPS_PORT, function(){
+	console.log("Server HTTPS:" + HTTPS_PORT);
+});
+
+let paginaErrore: string = "";
+
+
 
 function init() {
   fs.readFile("./static/error.html", (err: any, data: any) => {
@@ -55,6 +65,20 @@ function init() {
 }
 
 /***********MIDDLEWARE****************/
+app.use("/api/", (req: any, res: any, next: any) => {
+  let connection = new MongoClient(connectionString);
+  connection
+    .connect()
+    .catch((err: any) => {
+      res.status(503);
+      res.send("Errore di connessione al DB");
+    })
+    .then((client: any) => {
+      req["client"] = client;
+      next();
+    });
+});
+
 // 1 request log
 app.use("/", (req: any, res: any, next: any) => {
   console.log(req.method + ": " + req.originalUrl);

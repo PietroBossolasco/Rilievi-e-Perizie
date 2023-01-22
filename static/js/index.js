@@ -103,16 +103,16 @@ function loadGoogleApi() {
   });
 }
 
-
-
-
-
-
 function customize(){
   let req = inviaRichiesta("GET", "/api/info");
   req.fail(errore);
   req.done((data) => {
     data = JSON.parse(data);
     console.log(data);
+    // Accede tramite jQuery ai figli di .user
+    $(".user").children().eq(0).attr("src", data.profilePic);
+    $(".user").children().eq(1).text(data.nome + " " + data.cognome);
+    $(".wc").eq(0).text("Benvenuto " + data.nome);
+    $(".load").eq(0).fadeOut(200);
   });
 }

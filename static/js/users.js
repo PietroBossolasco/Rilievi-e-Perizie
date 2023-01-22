@@ -1,4 +1,5 @@
 window.onload = function () {
+  customize();
   takeAllUsers();
 
   $(".addUser").on("click", function () {
@@ -45,7 +46,7 @@ window.onload = function () {
   });
 };
 
-function takeAllUsers() {
+async function takeAllUsers() {
   let req = inviaRichiesta("GET", "/api/takeAllUsers");
   req.fail(errore);
   req.done(function (data) {
@@ -65,5 +66,18 @@ function takeAllUsers() {
         .append($("<a>").attr("href", item.profilePic).text("Immagine profilo"))
         .appendTo(tr);
     }
+  });
+}
+
+function customize(){
+  let req = inviaRichiesta("GET", "/api/info");
+  req.fail(errore);
+  req.done((data) => {
+    data = JSON.parse(data);
+    console.log(data);
+    // Accede tramite jQuery ai figli di .user
+    $(".user").children().eq(0).attr("src", data.profilePic);
+    $(".user").children().eq(1).text(data.nome + " " + data.cognome);
+    $(".load").eq(0).fadeOut(200);
   });
 }
