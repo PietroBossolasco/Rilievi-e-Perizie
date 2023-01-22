@@ -27,6 +27,8 @@ function errore(jqXHR, testStatus, strError) {
         alert("Connection refused or Server timeout");
     else if (jqXHR.status == 200)
         alert("Formato dei dati non corretto : " + jqXHR.responseText);
+    // else if (jqXHR.status == 403)
+    //     window.location.href = "/login.html";
     else
         alert("Server Error: " + jqXHR.status + " - " + jqXHR.responseText);
 }

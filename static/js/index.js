@@ -2,7 +2,7 @@
 
 window.onload = async function () {
   loadGoogleApi().then(setMap);
-
+  customize();
   var canvas = document.getElementById("canvas");
   var data = {
     type: "doughnut",
@@ -100,5 +100,19 @@ function loadGoogleApi() {
     script.onerror = function () {
       reject(new Error("errore sul caricamento"));
     };
+  });
+}
+
+
+
+
+
+
+function customize(){
+  let req = inviaRichiesta("GET", "/api/info");
+  req.fail(errore);
+  req.done((data) => {
+    data = JSON.parse(data);
+    console.log(data);
   });
 }

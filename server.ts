@@ -10,6 +10,11 @@ var bodyParser = require("body-parser");
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import fileUpload, { UploadedFile } from "express-fileupload";
+import { Console } from "console";
+
+let info;
+let tokensave: string = "";
+let dbsaved : any;
 
 const PORT = process.env.PORT || 1337;
 dotenv.config({ path: ".env" });
@@ -18,8 +23,9 @@ const connectionString: any = process.env.connectionString;
 const DBNAME = "Perizie";
 const usercollection = "user";
 const privateKey = fs.readFileSync("keys/privateKey.pem", "utf8");
+const certificate = fs.readFileSync("keys/certificate.crt", "utf8");
 dotenv.config({ path: ".env" });
-const DURATA_TOKEN = 5000;
+const DURATA_TOKEN = 5000000;
 
 const corsOptions = {
   origin: function (origin: any, callback: any) {
@@ -92,6 +98,7 @@ app.use("/", cors(corsOptions));
 
 // 7. gestione login
 app.post("/api/login", function (req: Request, res: Response, next: any) {
+  let platform = req.body.platform;
   let connection = new MongoClient(connectionString as string);
   connection
     .connect()
@@ -105,35 +112,54 @@ app.post("/api/login", function (req: Request, res: Response, next: any) {
             res.status(401); // user o password non validi
             res.send("Utente non trovato");
           } else {
-            //confronto la password
-            console.log(req.body.password);
-            console.log(dbUser.password);
-            bcrypt.compare(
-              req.body.password,
-              dbUser.password,
-              (err: Error, ris: Boolean) => {
-                if (err) {
-                  res.status(500);
-                  res.send("Errore bcrypt " + err.message);
-                  console.log(err.stack);
-                } else {
-                  if (!ris) {
-                    // password errata
-                    res.status(401);
-                    res.send("Password errata");
+            if (
+              (dbUser.role != 1 && platform == "mobile") ||
+              (dbUser.role != 0 && platform == "web")
+            ) {
+              res.status(414); // user o password non validi
+              res.send("Utente non autorizzato");
+            } else {
+              //confronto la password
+              console.log(req.body.password);
+              console.log(dbUser.password);
+              bcrypt.compare(
+                req.body.password,
+                dbUser.password,
+                (err: Error, ris: Boolean) => {
+                  if (err) {
+                    res.status(500);
+                    res.send("Errore bcrypt " + err.message);
+                    console.log(err.stack);
                   } else {
-                    let token = newToken(dbUser);
-                    res.setHeader("Authorization", token);
-                    // Per permettere le richieste extra domain
-                    res.setHeader(
-                      "Access-Control-Exspose-Headers",
-                      "Authorization"
-                    );
-                    res.send({ ris: "ok" });
+                    if (!ris) {
+                      // password errata
+                      res.status(401);
+                      res.send("Password errata");
+                    } else {
+                      let token = createToken(dbUser);
+                      req.headers["Authorization"] = token;
+                      res.setHeader("Authorization", token);
+                      dbsaved = dbUser;
+                      req["token"] = token;
+                      tokensave = token;
+                      // Per permettere le richieste extra domain
+                      res.setHeader(
+                        "Access-Control-Exspose-Headers",
+                        "Authorization"
+                      );
+                      res.send({ ris: "ok" });
+                      info = {
+                        username: dbUser.username,
+                        nome: dbUser.nome,
+                        cognome: dbUser.cognome,
+                        profilePic: dbUser.profilePic,
+                        email: dbUser.email,
+                      };
+                    }
                   }
                 }
-              }
-            );
+              );
+            }
           }
         })
         .catch((err: Error) => {
@@ -160,7 +186,7 @@ function createToken(user: any) {
     _id: user._id,
     username: user.username,
   };
-  let token = jwt.sign(payload, privateKey);
+  let token = jwt.sign(payload, certificate);
   console.log("Creato nuovo token " + token);
   return token;
 }
@@ -172,26 +198,31 @@ function newToken(user: any) {
 }
 
 // 8. gestione Logout
+// app.get("/api/logout", function (req: any, res, next) {
+//   req.headers["Authorization"] = "";
+//   localStorage.removeItem("token");
+// });
 
 // 9. Controllo del Token
-app.use("/api", function (req: any, res, next) {
+app.use("/api/", function (req: any, res, next) {
+  req.headers["Authorization"] = tokensave;
+  console.log("Controllo " + req.headers["Authorization"]);
   if (!req.headers["Authorization"]) {
     res.status(403);
     res.send("Token mancante");
   } else {
-    let token: any = req.headers.authorization;
-    jwt.verify(token, privateKey, (err: any, payload: any) => {
-      if (err) {
-        res.status(403);
-        res.send("Token scaduto o corrotto");
-      } else {
-        let newToken = createToken(payload);
-        res.setHeader("Authorization", token);
-        // Per permettere le richieste extra domain
-        res.setHeader("Access-Control-Exspose-Headers", "Authorization");
-        req["payload"] = payload;
-        next();
-      }
+    let token: any = req.headers["Authorization"];
+    console.log("Token " + token);
+    jwt.verify(token, certificate, (err: any, payload: any) => {
+      if(err){}
+      let newToken = createToken(dbsaved);
+      res.setHeader("Authorization", token);
+      req.headers["Authorization"] = token;
+      tokensave = token;
+      // Per permettere le richieste extra domain
+      res.setHeader("Access-Control-Exspose-Headers", "Authorization");
+      req["payload"] = payload;
+      next();
     });
   }
 });
@@ -260,4 +291,10 @@ app.get("/api/setNewUser", (req: any, res: any, next: any) => {
       }
     }
   );
+});
+
+app.get("/api/info", (req: any, res: any, next: any) => {
+  res.write(JSON.stringify(info));
+  res.end();
+  res.status(200);
 });

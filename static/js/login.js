@@ -11,6 +11,7 @@ window.onload = function () {
     let req = inviaRichiesta("POST", "/api/login", {
       username: username,
       password: password,
+      platform: "web"
     });
     req.fail(() => {
       console.log(req.status);
@@ -19,6 +20,9 @@ window.onload = function () {
         $(".err").eq(0).fadeIn(100);
       } else if (req.status == 503) {
         $(".err").eq(0).text("Errore interno del server");
+        $(".err").eq(0).fadeIn(100);
+      }else if(req.status == 414){
+        $(".err").eq(0).text("Utente non autorizzato");
         $(".err").eq(0).fadeIn(100);
       }
     });
