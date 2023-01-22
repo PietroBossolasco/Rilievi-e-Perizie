@@ -22,5 +22,21 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 
 function onDeviceReady() {
+    $(".home").eq(0).on("click", function(){
+        if($(".page").eq(0).hasClass("hidden")){
+            $(".page").eq(0).removeClass("hidden");
+            $(".page").eq(1).addClass("hidden");
+            $(".home").eq(0).css("background-image", "url(../img/homeselected.svg)");
+            $(".profile").eq(0).css("background-image", "url(../img/usernotselected.svg)");
+        }
+    });
     
+    $(".profile").eq(0).on("click", function(){
+        if($(".page").eq(1).hasClass("hidden")){
+            $(".page").eq(1).removeClass("hidden");
+            $(".page").eq(0).addClass("hidden");
+            $(".profile").eq(0).css("background-image", "url(../img/userselected.svg)");
+            $(".home").eq(0).css("background-image", "url(../img/homenotselected.svg)");
+        }
+    });
 }
