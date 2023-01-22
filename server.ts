@@ -171,7 +171,7 @@ app.post("/api/login", function (req: Request, res: Response, next: any) {
                         "Access-Control-Exspose-Headers",
                         "Authorization"
                       );
-                      res.send({ ris: "ok" });
+                      res.send(JSON.stringify({ ris: "ok", id: dbUser._id }));
                       info = {
                         username: dbUser.username,
                         nome: dbUser.nome,
