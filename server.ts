@@ -10,18 +10,20 @@ var bodyParser = require("body-parser");
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import fileUpload, { UploadedFile } from "express-fileupload";
+import cloudinary, { UploadApiResponse } from "cloudinary";
 import { Console } from "console";
 import https from "https";
 import axios from "axios";
 
 let info;
 let tokensave: string = "";
-let dbsaved : any;
+let dbsaved: any;
 
 const PORT = process.env.PORT || 1337;
 const HTTPS_PORT = 1338
 dotenv.config({ path: ".env" });
 var app = express();
+cloudinary.v2.config(process.env.CLOUDINARY_URL as string);
 const connectionString: any = process.env.connectionString;
 const DBNAME = "Perizie";
 const usercollection = "user";
@@ -48,8 +50,8 @@ server.listen(PORT, () => {
   console.log(connectionString);
 });
 let httpsServer = https.createServer(credentials, app);
-httpsServer.listen(HTTPS_PORT, function(){
-	console.log("Server HTTPS:" + HTTPS_PORT);
+httpsServer.listen(HTTPS_PORT, function () {
+  console.log("Server HTTPS:" + HTTPS_PORT);
 });
 
 let paginaErrore: string = "";
@@ -213,26 +215,26 @@ app.get("/api/logout", function (req: any, res, next) {
 
 // 9. Controllo del Token
 app.use("/api/", function (req: any, res, next) {
-  console.log("HEADERS: " + req.headers["authorization"])
-  if (!req.headers["authorization"]) {
-    res.status(403);
-    res.send("Token mancante");
-  } else {
-    let token: any = req.headers.authorization;
-    jwt.verify(token, privateKey, (err: any, payload: any) => {
-      if (err) {
-        res.status(403);
-        res.send("Token scaduto o corrotto");
-      } else {
-        let newToken = createToken(payload);
-        res.setHeader("Authorization", newToken);
-        // Per permettere le richieste extra domain
-        res.setHeader("Access-Control-Expose-Headers", "authorization");
-        req["payload"] = payload;
-        next();
-      }
-    });
-  }
+  // console.log("HEADERS: " + req.headers["authorization"])
+  // if (!req.headers["authorization"]) {
+  //   res.status(403);
+  //   res.send("Token mancante");
+  // } else {
+  //   let token: any = req.headers.authorization;
+  //   jwt.verify(token, privateKey, (err: any, payload: any) => {
+  //     if (err) {
+  //       res.status(403);
+  //       res.send("Token scaduto o corrotto");
+  //     } else {
+  //       let newToken = createToken(payload);
+  //       res.setHeader("Authorization", newToken);
+  //       // Per permettere le richieste extra domain
+  //       res.setHeader("Access-Control-Expose-Headers", "authorization");
+  //       req["payload"] = payload;
+  next();
+  //     }
+  //   });
+  // }
 });
 
 // 10. Apertura della connessione
@@ -328,7 +330,72 @@ app.get("/api/dbInfo", (req: any, res: any, next: any) => {
 
 
 
+app.post("/api/newPerizia", (req: any, res: any, next: any) => {
+  let collection = req["connessione"].db(DBNAME).collection("perizie");
+  collection.insertOne(req.body, (err: any, data: any) => {
+    if (err) {
+      res.status(500);
+      res.send("Errore inserimento record");
+    } else {
+      res.send(data);
+    }
+    req["connessione"].close();
+  });
+});
 
+app.get("/api/requestPerizieByIdLimit", (req: any, res: any, next: any) => {
+  let collection = req["connessione"].db(DBNAME).collection("perizie");
+  if(req.query.userId){
+    collection.find({ userId : req.query.userId }).sort({data: -1}).toArray((err: any, data: any) => {
+      if (err) {
+        res.status(500);
+        res.send("Errore inserimento record");
+      } else {
+        res.send(data);
+        res.status(200);
+      }
+      req["connessione"].close();
+    });
+  }
+  else if(!req.query.userId && !req.query.username){
+    collection.find().sort({data: -1}).toArray((err: any, data: any) => {
+      if (err) {
+        res.status(500);
+        res.send("Errore inserimento record");
+      } else {
+        res.send(data);
+        res.status(200);
+      }
+      req["connessione"].close();
+    });
+  }else if (req.query.username){
+    collection.find({ username : req.query.username }).sort({data: -1}).toArray((err: any, data: any) => {
+      if (err) {
+        res.status(500);
+        res.send("Errore inserimento record");
+      } else {
+        res.send(data);
+        res.status(200);
+      }
+      req["connessione"].close();
+    });
+  }
+})
+
+app.get("/api/ultimePerizie", (req: any, res: any, next: any) => {
+  console.log("ULTIME PERIZIE")
+  let collection = req["connessione"].db(DBNAME).collection("perizie");
+  collection.find().sort({data: -1}).limit(3).toArray((err: any, data: any) => {
+    if (err) {
+      res.status(500);
+      res.send("Errore inserimento record");
+    } else {
+      res.send(data);
+      res.status(200);
+    }
+    req["connessione"].close();
+  });
+});
 
 // Default route
 app.use("/", function (req: any, res: any, next: NextFunction) {

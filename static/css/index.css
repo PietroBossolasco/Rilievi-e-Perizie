@@ -49,6 +49,14 @@ body{
     height: 90%;
 }
 
+.minicard div{
+    width: 100%;
+    height: 100px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 .lower{
     width: 87vw;
     max-width: 87vw;
@@ -58,7 +66,8 @@ body{
     flex-direction: row;
     justify-content: space-evenly;
     /* margin-top: 40px; */
-    overflow-x: scroll;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding: 20px 0px 20px 0px;
 }
 

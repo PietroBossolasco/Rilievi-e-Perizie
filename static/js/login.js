@@ -30,6 +30,7 @@ window.onload = function () {
         // data = JSON.parse(data);
       console.log(data);
       if (data.ris) {
+        localStorage.setItem("username", username);
         window.location.href = "index.html";
       }
     });

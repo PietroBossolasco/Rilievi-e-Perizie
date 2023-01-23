@@ -79,7 +79,8 @@
     max-width: calc(100vw - 250px);
     position: fixed !important;
     right: 0;
-    overflow-y: visible;
+    overflow-x: hidden;
+    overflow-y: auto;
     max-height: calc(100vh - 80px);
 }
 

@@ -3,6 +3,7 @@
 window.onload = async function () {
   loadGoogleApi().then(setMap);
   customize();
+  setLastPeri();
   var canvas = document.getElementById("canvas");
   var data = {
     type: "doughnut",
@@ -36,8 +37,8 @@ window.onload = async function () {
           beginAtZero: true,
         },
       },
-      responsive:true
-    //  maintainAspectRatio:false, */
+      responsive: true
+      //  maintainAspectRatio:false, */
     }
   }
   let chart = new Chart(canvas, data);
@@ -71,21 +72,29 @@ function setMap() {
     animation: google.maps.Animation.DROP, // .BOUNCE oscilla
     draggable: false, // rende il marcatore trascinabile
   };
-
   let marcatore1 = new google.maps.Marker(markerOptions);
 
-  let markerOptions2 = {
-    map: mappa,
-    position: new google.maps.LatLng(44.6558363, 7.733851),
-    title: "IIS Vallauri", // tooltip
-    label: "", // lettera maiuscola singola
-    icon: icon1, // complex icon
-    zIndex: 3, // in caso di marcatori vicini/sovrapposti
-    animation: google.maps.Animation.DROP, // .BOUNCE oscilla
-    draggable: false, // rende il marcatore trascinabile
-  };
+  let req = inviaRichiesta("GET", "/api/requestPerizieByIdLimit")
+  req.fail(errore);
+  req.done((data) => {
+    console.log(data);
+    for (let item of data) {
+      let a = item.coord.split(",")[0];
+      let b = item.coord.split(",")[1];
+      let markerOptions2 = {
+        map: mappa,
+        position: new google.maps.LatLng(a, b),
+        title: item.name, // tooltip
+        label: "", // lettera maiuscola singola
+        icon: icon1, // complex icon
+        zIndex: 3, // in caso di marcatori vicini/sovrapposti
+        animation: google.maps.Animation.DROP, // .BOUNCE oscilla
+        draggable: false, // rende il marcatore trascinabile
+      };
 
-  new google.maps.Marker(markerOptions2);
+      new google.maps.Marker(markerOptions2);
+    }
+  });
 }
 
 function loadGoogleApi() {
@@ -103,16 +112,31 @@ function loadGoogleApi() {
   });
 }
 
-function customize(){
-  let req = inviaRichiesta("GET", "/api/info");
+function customize() {
+  let req = inviaRichiesta("GET", "/api/dbInfo", { username: localStorage.getItem("username") });
   req.fail(errore);
   req.done((data) => {
-    data = JSON.parse(data);
     console.log(data);
     // Accede tramite jQuery ai figli di .user
     $(".user").children().eq(0).attr("src", data.profilePic);
     $(".user").children().eq(1).text(data.nome + " " + data.cognome);
     $(".wc").eq(0).text("Benvenuto " + data.nome);
     $(".load").eq(0).fadeOut(200);
+  });
+}
+
+function setLastPeri() {
+  let req = inviaRichiesta("GET", "/api/ultimePerizie");
+  console.log(req);
+  req.fail(errore);
+  req.done((data) => {
+    console.log(data);
+    $(".lower").empty();
+    for (let item of data) {
+      let div = $("<div>").addClass("minicard").appendTo(".lower");
+      $("<div>").css("background-image", "url('" + item.image + "')").appendTo(div);
+      $("<p>").text(item.name).addClass("titleCard").appendTo(div);
+      $("<p>").text(item.description).addClass("paragraphCard").appendTo(div);
+    }
   });
 }

@@ -50,7 +50,7 @@ async function takeAllUsers() {
   let req = inviaRichiesta("GET", "/api/takeAllUsers");
   req.fail(errore);
   req.done(function (data) {
-    data = JSON.parse(data);
+    // data = JSON.parse(data);
     let i = 0;
     let table = $("tbody");
     table.empty();
@@ -69,11 +69,11 @@ async function takeAllUsers() {
   });
 }
 
-function customize(){
-  let req = inviaRichiesta("GET", "/api/info");
+function customize() {
+  let req = inviaRichiesta("GET", "/api/dbInfo", { username: localStorage.getItem("username") });
   req.fail(errore);
   req.done((data) => {
-    data = JSON.parse(data);
+    // data = JSON.parse(data);
     console.log(data);
     // Accede tramite jQuery ai figli di .user
     $(".user").children().eq(0).attr("src", data.profilePic);
