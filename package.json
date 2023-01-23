@@ -15,6 +15,8 @@
   "devDependencies": {
     "cordova-android": "^10.1.2",
     "cordova-browser": "^6.0.0",
+    "cordova-plugin-camera": "^6.0.0",
+    "cordova-plugin-geolocation": "^4.1.0",
     "cordova-plugin-screen-orientation": "^3.0.2",
     "cordova-plugin-splashscreen": "^6.0.2",
     "es6-promise-plugin": "^4.2.2"
@@ -26,7 +28,13 @@
     ],
     "plugins": {
       "cordova-plugin-splashscreen": {},
-      "cordova-plugin-screen-orientation": {}
+      "cordova-plugin-screen-orientation": {},
+      "cordova-plugin-geolocation": {
+        "GPS_REQUIRED": "true"
+      },
+      "cordova-plugin-camera": {
+        "ANDROIDX_CORE_VERSION": "1.6.+"
+      }
     }
   }
 }

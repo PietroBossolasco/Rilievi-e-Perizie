@@ -32,7 +32,6 @@ function log(password, username){
     // data = JSON.parse(data);
     console.log(data);
     var storage = window.localStorage;
-    storage.setItem("id", data.id);
     storage.setItem("username", username);
     storage.setItem("password", password);
     storage.setItem("logged", "true");

@@ -20,6 +20,7 @@
     <meta name="color-scheme" content="light dark" />
     <link rel="stylesheet" href="css/index.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="js/libreria.js"></script>
     <title>Perizie</title>
   </head>
@@ -36,20 +37,6 @@
         <div class="nuovaPerizia">Nuova perizia</div>
         <div class="perizie">
           <p class="title">Tutte le tue perizie ></p>
-          <div class="card">
-            <p class="cardTitle">Perizia 1</p>
-            <p class="cardDate">2022-01-31</p>
-          </div>
-
-          <div class="card">
-            <p class="cardTitle">Perizia 1</p>
-            <p class="cardDate">2022-01-31</p>
-          </div>
-
-          <div class="card">
-            <p class="cardTitle">Perizia 1</p>
-            <p class="cardDate">2022-01-31</p>
-          </div>
         </div>
       </div>
 
@@ -65,8 +52,23 @@
 
       <!-- NUOVA PERIZIA -->
       <div class="page hidden">
-        <p class="pagetitle">Nuova perizia</p>
+        <p class="pagetitle" style="margin-bottom: 20px;">Nuova perizia</p>
+        <p style="color: black; margin-left: 5%; font-size: 13pt;">Informazioni generali</p>
         <input type="text" class="input" placeholder="Nome perizia" />
+        <input type="text" class="input" placeholder="Descrizione perizia" />
+        <p style="color: black; margin-left: 5%; font-size: 13pt;">Data e ora</p>
+        <input type="date" class="input" placeholder="Data perizia" />
+        <input type="time" class="input" placeholder="Data perizia" />
+        <p style="color: black; margin-left: 5%; font-size: 13pt;">Posizione</p>
+        <div class="pos">Rileva posizione attuale</div>
+        <p style="text-align: center; color: black;">Oppure</p>
+        <input type="text" class="input" placeholder="Inserisci manualmente" />
+        <p style="color: black; margin-left: 5%; font-size: 13pt;">Immagini</p>
+        <div class="pos">Aggiungi dalla galleria</div>
+        <p style="text-align: center; color: black;">Oppure</p>
+        <div class="now">Scatta ora</div>
+        <img class="image" style="margin-top: 10px;"></img>
+        <input type="text" class="input" placeholder="Descrizione immagine" />
         <div class="line">
           <div class="button">Annulla</div>
           <div class="button">Salva</div>
