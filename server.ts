@@ -12,6 +12,7 @@ import jwt from "jsonwebtoken";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import { Console } from "console";
 import https from "https";
+import axios from "axios";
 
 let info;
 let tokensave: string = "";
@@ -25,6 +26,7 @@ const connectionString: any = process.env.connectionString;
 const DBNAME = "Perizie";
 const usercollection = "user";
 const privateKey = fs.readFileSync("keys/privateKey.pem", "utf8");
+const symmetricKey = fs.readFileSync("keys/symmetricKey.pem", "utf8");
 const certificate = fs.readFileSync("keys/certificate.crt", "utf8");
 const credentials = { "key": privateKey, "cert": certificate };
 dotenv.config({ path: ".env" });
@@ -158,27 +160,16 @@ app.post("/api/login", function (req: Request, res: Response, next: any) {
                     if (!ris) {
                       // password errata
                       res.status(401);
-                      res.send("Password errata");
+                      res.send("Wrong password");
                     } else {
                       let token = createToken(dbUser);
-                      req.headers["Authorization"] = token;
-                      res.setHeader("Authorization", token);
-                      dbsaved = dbUser;
-                      req["token"] = token;
-                      tokensave = token;
+                      res.setHeader("authorization", token);
                       // Per permettere le richieste extra domain
                       res.setHeader(
-                        "Access-Control-Exspose-Headers",
-                        "Authorization"
+                        "Access-Control-Expose-Headers",
+                        "authorization"
                       );
-                      res.send(JSON.stringify({ ris: "ok", id: dbUser._id }));
-                      info = {
-                        username: dbUser.username,
-                        nome: dbUser.nome,
-                        cognome: dbUser.cognome,
-                        profilePic: dbUser.profilePic,
-                        email: dbUser.email,
-                      };
+                      res.send({ ris: token });
                     }
                   }
                 }
@@ -210,43 +201,36 @@ function createToken(user: any) {
     _id: user._id,
     username: user.username,
   };
-  let token = jwt.sign(payload, certificate);
+  let token = jwt.sign(payload, symmetricKey);
   console.log("Creato nuovo token " + token);
   return token;
 }
 
-function newToken(user: any) {
-  let time: any = new Date().getTime();
-  let now = parseInt(time);
-  return bcrypt.hashSync(user.username + now, 10);
-}
-
 // 8. gestione Logout
-// app.get("/api/logout", function (req: any, res, next) {
-//   req.headers["Authorization"] = "";
-//   localStorage.removeItem("token");
-// });
+app.get("/api/logout", function (req: any, res, next) {
+  req.headers["authorization"] = "";
+});
 
 // 9. Controllo del Token
 app.use("/api/", function (req: any, res, next) {
-  req.headers["Authorization"] = tokensave;
-  console.log("Controllo " + req.headers["Authorization"]);
-  if (!req.headers["Authorization"]) {
+  console.log("HEADERS: " + req.headers["authorization"])
+  if (!req.headers["authorization"]) {
     res.status(403);
     res.send("Token mancante");
   } else {
-    let token: any = req.headers["Authorization"];
-    console.log("Token " + token);
-    jwt.verify(token, certificate, (err: any, payload: any) => {
-      if(err){}
-      let newToken = createToken(dbsaved);
-      res.setHeader("Authorization", token);
-      req.headers["Authorization"] = token;
-      tokensave = token;
-      // Per permettere le richieste extra domain
-      res.setHeader("Access-Control-Exspose-Headers", "Authorization");
-      req["payload"] = payload;
-      next();
+    let token: any = req.headers.authorization;
+    jwt.verify(token, privateKey, (err: any, payload: any) => {
+      if (err) {
+        res.status(403);
+        res.send("Token scaduto o corrotto");
+      } else {
+        let newToken = createToken(payload);
+        res.setHeader("Authorization", newToken);
+        // Per permettere le richieste extra domain
+        res.setHeader("Access-Control-Expose-Headers", "authorization");
+        req["payload"] = payload;
+        next();
+      }
     });
   }
 });
@@ -324,6 +308,7 @@ app.get("/api/info", (req: any, res: any, next: any) => {
 });
 
 app.get("/api/dbInfo", (req: any, res: any, next: any) => {
+  console.log("Take all users yahiii " + req.query.username);
   let db = req.client.db(DBNAME);
   db.collection(usercollection).findOne(
     { username: req.query.username },
@@ -332,10 +317,24 @@ app.get("/api/dbInfo", (req: any, res: any, next: any) => {
         res.write("Errore esecuzione query " + err.message);
         res.status(401);
       } else {
+        console.log("user " + data);
         res.write(JSON.stringify(data));
         res.end();
         res.status(200);
       }
     }
   );
+});
+
+
+
+
+
+// Default route
+app.use("/", function (req: any, res: any, next: NextFunction) {
+  res.status(404);
+  if (req.originalUrl.startsWith("/api/")) {
+    res.send("Risorsa non trovata");
+    req["connessione"].close();
+  } else res.send(paginaErrore);
 });

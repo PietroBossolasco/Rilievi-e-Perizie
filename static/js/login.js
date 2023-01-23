@@ -6,7 +6,7 @@ window.onload = function () {
     let password = CryptoJS.SHA256($("input").eq(1).val()).toString(
       CryptoJS.enc.Hex
     );
-    console.log(password);
+    // console.log(password);
 
     let req = inviaRichiesta("POST", "/api/login", {
       username: username,
@@ -27,9 +27,9 @@ window.onload = function () {
       }
     });
     req.done((data) => {
-        data = JSON.parse(data);
+        // data = JSON.parse(data);
       console.log(data);
-      if (data.ris == "ok") {
+      if (data.ris) {
         window.location.href = "index.html";
       }
     });
