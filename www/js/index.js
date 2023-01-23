@@ -20,47 +20,57 @@
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 document.addEventListener('deviceready', onDeviceReady, false);
-
+window.screen.orientation.lock('portrait');
 let userData = {};
 
 function onDeviceReady() {
-    if(localStorage.getItem("username") == null || localStorage.getItem("logged") == "false" || localStorage.getItem("logged") == null){
+    if (localStorage.getItem("username") == null || localStorage.getItem("logged") == "false" || localStorage.getItem("logged") == null) 
         window.location.href = "/login.html";
-    }
+    else {
+        custom();
 
-    // custom();
+        $(".home").eq(0).on("click", function () {
+            if ($(".page").eq(0).hasClass("hidden")) {
+                $(".page").eq(0).removeClass("hidden");
+                $(".page").eq(1).addClass("hidden");
+                $(".page").eq(2).addClass("hidden");
+                $(".home").eq(0).css("background-image", "url(../img/homeselected.svg)");
+                $(".profile").eq(0).css("background-image", "url(../img/usernotselected.svg)");
+            }
+        });
 
-    $(".home").eq(0).on("click", function(){
-        if($(".page").eq(0).hasClass("hidden")){
-            $(".page").eq(0).removeClass("hidden");
-            $(".page").eq(1).addClass("hidden");
-            $(".page").eq(2).addClass("hidden");
-            $(".home").eq(0).css("background-image", "url(../img/homeselected.svg)");
-            $(".profile").eq(0).css("background-image", "url(../img/usernotselected.svg)");
-        }
-    });
-    
-    $(".profile").eq(0).on("click", function(){
-        if($(".page").eq(1).hasClass("hidden")){
-            $(".page").eq(1).removeClass("hidden");
+        $(".profile").eq(0).on("click", function () {
+            if ($(".page").eq(1).hasClass("hidden")) {
+                $(".page").eq(1).removeClass("hidden");
+                $(".page").eq(0).addClass("hidden");
+                $(".page").eq(2).addClass("hidden");
+                $(".profile").eq(0).css("background-image", "url(../img/userselected.svg)");
+                $(".home").eq(0).css("background-image", "url(../img/homenotselected.svg)");
+            }
+        });
+
+        $(".nuovaPerizia").eq(0).on("click", function () {
             $(".page").eq(0).addClass("hidden");
-            $(".page").eq(2).addClass("hidden");
-            $(".profile").eq(0).css("background-image", "url(../img/userselected.svg)");
-            $(".home").eq(0).css("background-image", "url(../img/homenotselected.svg)");
-        }
-    });
+            $(".page").eq(2).removeClass("hidden");
+        });
 
-    $(".nuovaPerizia").eq(0).on("click", function(){
-        $(".page").eq(0).addClass("hidden");
-        $(".page").eq(2).removeClass("hidden");
-    });
+        $(".logout").eq(0).on("click", function () {
+            localStorage.setItem("logged", "false");
+            localStorage.setItem("username", "");
+            localStorage.setItem("password", "");
+            window.location.href = "/login.html";
+        });
+    }
 }
 
-// async function custom(){
-//     let req = inviaRichiesta("GET", "/api/dbInfo", localStorage.getItem("username"));
-//     req.fail(errore);
-//     req.done(function(data){
-//         userData = data;
-//         $(".wel").eq(0).text("Benvenuto " + data.username);
-//     });
-// }
+function custom() {
+    let req = inviaRichiesta("GET", "/api/dbInfo", {"username": localStorage.getItem("username")});
+    req.fail(errore);
+    req.done(function (data) {
+        userData = data;
+        console.log(data);
+        $(".wel").eq(0).text("Benvenuto " + data.nome);
+        $(".profilePicture").eq(0).css("background-image", "url(" + data.profilePic + ")");
+        $(".namesur").eq(0).text(data.nome + " " + data.cognome);
+    });
+}

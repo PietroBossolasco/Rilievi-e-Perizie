@@ -1,8 +1,10 @@
 "use strict";
 
 window.onload = function () {
-  if(localStorage.getItem("logged") == "true"){
-    log(password, username);
+  window.screen.orientation.lock('portrait');
+
+  if(localStorage.getItem("logged") == 'true'){
+    log(localStorage.getItem("password"), localStorage.getItem("username"));
   }
   else{
     $(".load").eq(0).addClass("hidden");

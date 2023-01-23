@@ -9,7 +9,7 @@
         default-src *;
         script-src * 'unsafe-inline';
         style-src * 'unsafe-inline';
-        img-src 'self' data: content:; "
+        img-src * data: content:; "
     />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
@@ -53,14 +53,15 @@
         </div>
       </div>
 
-
       <!-- PAGINA PROFILO -->
       <div class="page hidden">
+        <div class="profilePicture"></div>
+        <p class="namesur"></p>
         <div class="section">Modifica password <arrow>></arrow></div>
         <div class="section">Modifica email <arrow>></arrow></div>
         <div class="section">Impostazioni <arrow>></arrow></div>
+        <div class="logout">Logout</div>
       </div>
-
 
       <!-- NUOVA PERIZIA -->
       <div class="page hidden">

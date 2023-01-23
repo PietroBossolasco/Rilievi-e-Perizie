@@ -51,6 +51,27 @@ body {
     margin-top: 20px;
 }
 
+.profilePicture{
+    width: 40vw;
+    height: 40vw;
+    border-radius: 50%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+    margin: auto;
+}
+
+.namesur{
+    font-size: 20pt;
+    font-weight: 500;
+    color: black;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 .app {
     position:absolute;             /* position in the center of the screen */
     left:0;
@@ -83,7 +104,7 @@ body {
     text-align: right;
     font-size: 15pt;
     color: gray;
-    /* margin-right: 5%; */
+    margin-right: 5%;
 }
 
 .page{
@@ -91,7 +112,7 @@ body {
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 100%;
+    width: 100vw;
     height: 100%;
 }
 
@@ -105,7 +126,7 @@ space{
 }
 
 .section{
-    width: calc(90% - 30px);
+    width: calc(90% - 40px);
     line-height: 30px;
     border-bottom: 1px solid black;
     color: black;
@@ -132,7 +153,8 @@ space{
     margin-left: 5% !important;
     margin-top: 20px;
     padding: 10px;
-    width: 90%;
+    width: calc(90%-20px);
+    margin-right: 5% !important;
 }
 
 .cardTitle{
@@ -173,6 +195,18 @@ space{
 }
 
 .nuovaPerizia{
+    width: 90vw;
+    margin-left: 5vw;
+    height: 50px;
+    margin-top: 40px;
+    background: linear-gradient(96.1deg, rgba(0, 23, 54, 0.88) 2.94%, rgba(4, 42, 92, 0.88) 95.89%);
+    text-align: center;
+    line-height: 50px;
+    font-size: 13pt;
+    border-radius: 5px;
+}
+
+.logout{
     width: 90vw;
     margin-left: 5vw;
     height: 50px;

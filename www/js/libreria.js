@@ -1,6 +1,6 @@
 "use strict";
 
-const URL = "https://perizie-bossolasco.onrender.com:1338";
+const URL = "https://10.0.101.92:1338";
 
 function inviaRichiesta(method, url, parameters={}) {
 	let contentType;
@@ -28,6 +28,8 @@ function errore(jqXHR, text_status, string_error) {
         alert("Connection Refused or Server timeout");
 	else if (jqXHR.status == 200)
         alert("Formato dei dati non corretto : " + jqXHR.responseText);
+	else if (jqXHR.status == 403)
+		window.location.href = "/login.html";
     else
         alert("Server Error: " + jqXHR.status + " - " + jqXHR.responseText);
 }

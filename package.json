@@ -15,7 +15,9 @@
   "devDependencies": {
     "cordova-android": "^10.1.2",
     "cordova-browser": "^6.0.0",
-    "cordova-plugin-splashscreen": "^6.0.2"
+    "cordova-plugin-screen-orientation": "^3.0.2",
+    "cordova-plugin-splashscreen": "^6.0.2",
+    "es6-promise-plugin": "^4.2.2"
   },
   "cordova": {
     "platforms": [
@@ -23,7 +25,8 @@
       "browser"
     ],
     "plugins": {
-      "cordova-plugin-splashscreen": {}
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-screen-orientation": {}
     }
   }
 }
