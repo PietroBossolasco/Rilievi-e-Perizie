@@ -90,6 +90,8 @@ function custom() {
                 $("<p>").addClass("cardDate").text(data[i].date + ", " + data[i].hour).appendTo(div);
                 div.appendTo(".perizie").eq(0);
             }
+
+            $(".load").fadeOut(100);
         })
     });
 }

@@ -9,7 +9,7 @@ function inviaRichiesta(method, url, parameters = {}) {
 	}
 
 	return $.ajax({
-		url: "https://192.168.1.126:1338" + url, //default: currentPage
+		url: "https://10.0.101.92:1338" + url, //default: currentPage
 		type: method,
 		data: parameters,
 		contentType: contentType,
