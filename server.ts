@@ -14,6 +14,7 @@ import cloudinary, { UploadApiResponse } from "cloudinary";
 import { Console } from "console";
 import https from "https";
 import axios from "axios";
+var mongoose = require('mongoose');
 
 let info;
 let tokensave: string = "";
@@ -385,6 +386,20 @@ app.get("/api/requestPerizieByIdLimit", (req: any, res: any, next: any) => {
       req["connessione"].close();
     });
   }
+})
+
+app.post("/api/updatePerizia", (req: any, res: any, next: any) => {
+  let collection = req["connessione"].db(DBNAME).collection("perizie");
+  let id = mongoose.Types.ObjectId(req.body.id);
+  collection.updateOne({ _id: id}, {$set: req.body.data}, function (err: any, data: any) {
+    if(err){
+      res.status(500);
+      res.send("Errore inserimento record");
+    }else{
+      res.send(data);
+      res.status(200);
+    }
+  })
 })
 
 app.get("/api/ultimePerizie", (req: any, res: any, next: any) => {

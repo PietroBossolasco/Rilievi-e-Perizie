@@ -134,7 +134,7 @@ function setLastPeri() {
     $(".lower").empty();
     for (let item of data) {
       let div = $("<div>").addClass("minicard").appendTo(".lower");
-      $("<div>").css("background-image", "url('" + item.image + "')").appendTo(div);
+      $("<div>").css("background-image", "url('" + item.image[0] + "')").appendTo(div);
       $("<p>").text(item.name).addClass("titleCard").appendTo(div);
       $("<p>").text(item.description).addClass("paragraphCard").appendTo(div);
       div.on("click", () => {
@@ -144,7 +144,12 @@ function setLastPeri() {
         let wrapper = $("<div>").addClass("wrapper-info-perizia").appendTo(mainDiv);
         $("<p>").addClass("info-perizia-title").appendTo(wrapper).text(item.name);
         $("<p>").addClass("info-perizia-description").appendTo(wrapper).text(item.description);
-        $("<img>").addClass("info-perizia-image").appendTo(wrapper).attr("src", item.image);
+        let imgWrapper = $("<div>").addClass("img-wrapper").appendTo(wrapper);
+          for(let a = 0; a < item.image.length; a++){
+            let imgDiv = $("<div>").addClass("img").appendTo(imgWrapper)
+            $("<img>").addClass("info-perizia-image").appendTo(imgDiv).attr("src", item.image[a]);
+            $("<p>").text(item.imageComment[a]).appendTo(imgDiv);
+          }
         $("<div>").addClass("map").appendTo(wrapper);
         let cord = item.coord.split(",");
         let sede = new google.maps.LatLng(cord[0], cord[1])
@@ -177,6 +182,46 @@ function setLastPeri() {
 
         let btn = $("<button>").addClass("btn-info-perizia").appendTo(wrapper).text("Chiudi").on("click", () => {
           div.remove();
+        });
+
+        $("<button>").css("right", "calc(10vw + 10%) !important").addClass("btn-info-perizia").appendTo(wrapper).text("Modifica").on("click", () => {
+          $(".wrapper-info-perizia").empty();
+          $("<p>").addClass("subtitle").appendTo($(".wrapper-info-perizia")).text("Nome perizia")
+          $("<input>").attr({"type": "text", "placeholder" : "Nome perizia"}).appendTo($(".wrapper-info-perizia")).val(item.name);
+          $("<p>").addClass("subtitle").appendTo($(".wrapper-info-perizia")).text("Descrizione perizia");
+          $("<input>").attr({"type": "text", "placeholder" : "Descrizione perizia"}).appendTo($(".wrapper-info-perizia")).val(item.description);
+          $("<p>").addClass("subtitle").appendTo($(".wrapper-info-perizia")).text("Descrizione immagini");
+          let count = 0;
+          for(let im of item.imageComment){
+            count++;
+            $("<input>").attr({"type": "text", "placeholder" : "Descrizione immagine " + count}).appendTo($(".wrapper-info-perizia")).val(im);
+          }
+          $("<button>").addClass("btn-info-perizia").appendTo(wrapper).text("Salva").on("click", function(){
+            let data = {
+              name : $(".wrapper-info-perizia").children("input").eq(0).val(),
+              description : $(".wrapper-info-perizia").children("input").eq(1).val(),
+              imageComment : [],
+            }
+
+            for(let i = 2; i < $(".wrapper-info-perizia").children("input").length; i++){
+              if($(".wrapper-info-perizia").children("input").eq(i).val()){
+                data.imageComment.push($(".wrapper-info-perizia").children("input").eq(i).val());
+              }
+              else
+                data.imageComment.push("");
+
+              let req = inviaRichiesta("POST", "/api/updatePerizia", {id : item._id, data : data});
+              req.fail(errore);
+              req.done((data) => {
+                console.log(data);
+                div.remove();
+                window.location.reload();
+              });
+            }
+          })
+          $("<button>").css("right", "calc(10vw + 10%) !important").addClass("btn-info-perizia").appendTo(wrapper).text("Annulla").on("click", () => {
+            div.remove();
+          });
         });
       });
     }
