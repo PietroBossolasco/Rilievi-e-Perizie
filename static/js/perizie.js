@@ -76,6 +76,8 @@ function reqPerizie(nickname){
           };
           let marcatore1 = new google.maps.Marker(markerOptions);
   
+          disegnaPercorso(item, sede)
+
           $("<button>").addClass("btn-info-perizia").appendTo(wrapper).text("Chiudi").on("click", () => {
             div.remove();
           });
@@ -274,4 +276,46 @@ function loadGoogleApi() {
       script.onload = () => resolve()
       script.onerror = function () { reject(new Error("errore sul caricamento")) }
   })
+}
+
+function disegnaPercorso(perizia, latlng) {
+  var directionsService = new google.maps.DirectionsService();
+  let coords = perizia.coord.split(",");
+  var routesOptions = {
+    origin: new google.maps.LatLng(44.5558363, 7.733851),
+    destination: new google.maps.LatLng(
+      coords[0],
+      coords[1]
+    ),
+    travelMode: google.maps.TravelMode.DRIVING, // default
+    provideRouteAlternatives: true, // default=false
+    avoidTolls: false, // default (con pedaggi)
+  };
+  directionsService.route(routesOptions, function (directionsRoutes) {
+    var mapOptions = {
+      mapTypeId: google.maps.MapTypeId.ROADMAP, // default=ROADMAP
+    };
+    var mappa = new google.maps.Map(document.getElementsByClassName("map")[0], mapOptions);
+    if (directionsRoutes.status == google.maps.DirectionsStatus.OK) {
+      console.log(directionsRoutes.routes[0]);
+
+      let renderOptions = {
+        polylineOptions: {
+          strokeColor: "#44F", // colore del percorso
+          strokeWeight: 6, // spessore
+          zIndex: 100, // posizionamento
+        },
+      };
+      let directionsRenderer = new google.maps.DirectionsRenderer(
+        renderOptions
+      );
+      directionsRenderer.setMap(mappa); // Collego il renderer alla mappa
+      directionsRenderer.setRouteIndex(0);
+      directionsRenderer.setDirections(directionsRoutes);
+
+      console.log(
+        directionsRoutes.routes[0].legs[0].duration.text
+      );
+    }
+  });
 }

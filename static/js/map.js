@@ -9,6 +9,18 @@ let sede;
 var mappa;
 
 function setMap() {
+    let renderOptions = {
+        polylineOptions: {
+            strokeColor: "#44F", // colore del percorso
+            strokeWeight: 6, // spessore
+            zIndex: 100, // posizionamento
+        },
+    };
+
+    let directionsRenderer = new google.maps.DirectionsRenderer(
+        renderOptions
+    );
+
     sede = new google.maps.LatLng(44.5558363, 7.733851)
     var div = document.getElementsByClassName("wrapper")[0];
     var posizione = new google.maps.LatLng(44.5558363, 7.733851);
@@ -56,54 +68,52 @@ function setMap() {
             };
             $(".topSection").hide();
             let marcatore = new google.maps.Marker(markerOptions2);
-
+            
             marcatore.addListener("click", function () {
+                directionsRenderer.setMap(null)
                 console.log("Hi")
                 $(".topSection").eq(0).fadeIn(100);
-                disegnaPercorso(item, item.coord);
+                var directionsService = new google.maps.DirectionsService();
+                let coords = item.coord.split(",");
+                var routesOptions = {
+                    origin: new google.maps.LatLng(44.5558363, 7.733851),
+                    destination: new google.maps.LatLng(
+                        coords[0],
+                        coords[1]
+                    ),
+                    travelMode: google.maps.TravelMode.DRIVING, // default
+                    provideRouteAlternatives: true, // default=false
+                    avoidTolls: false, // default (con pedaggi)
+                };
+
+                
+                directionsService.route(routesOptions, function (directionsRoutes) {
+                    if (directionsRoutes.status == google.maps.DirectionsStatus.OK) {
+                        console.log(directionsRoutes.routes[0]);
+
+                        let renderOptions = {
+                            polylineOptions: {
+                                strokeColor: "#44F", // colore del percorso
+                                strokeWeight: 6, // spessore
+                                zIndex: 100, // posizionamento
+                            },
+                        };
+                        directionsRenderer.setMap(mappa); // Collego il renderer alla mappa
+                        directionsRenderer.setRouteIndex(0);
+                        directionsRenderer.setDirections(directionsRoutes);
+
+                        console.log(
+                            directionsRoutes.routes[0].legs[0].duration.text
+                        );
+                    }
+                });
+
+                let container = $(".topSection").eq(0);
+                $("<p>").addClass("title").text(item.name).appendTo(container);
+                $("<img>").attr("src", item.image[0]).appendTo(container);
+                $("<p>").addClass("desc").text(item.description).addClass("subtitle").appendTo(container);
             });
 
-        }
-    });
-}
-
-
-function disegnaPercorso(perizia, latlng) {
-    var directionsService = new google.maps.DirectionsService();
-    let a = latlng.split(",")[0];
-    let b = latlng.split(",")[1];
-    var routesOptions = {
-        origin: sede,
-        destination: new google.maps.LatLng(
-            a, b
-        ),
-        travelMode: google.maps.TravelMode.DRIVING, // default
-        provideRouteAlternatives: true, // default=false
-        avoidTolls: false, // default (con pedaggi)
-    };
-    directionsService.route(routesOptions, function (directionsRoutes) {
-        let mapOptions = {};
-        var mappa = mappa;
-        if (directionsRoutes.status == google.maps.DirectionsStatus.OK) {
-            console.log(directionsRoutes.routes[0]);
-
-            let renderOptions = {
-                polylineOptions: {
-                    strokeColor: "#44F", // colore del percorso
-                    strokeWeight: 6, // spessore
-                    zIndex: 100, // posizionamento
-                },
-            };
-            let directionsRenderer = new google.maps.DirectionsRenderer(
-                renderOptions
-            );
-            directionsRenderer.setMap(mappa); // Collego il renderer alla mappa
-            directionsRenderer.setRouteIndex(0);
-            directionsRenderer.setDirections(directionsRoutes);
-
-            $("#tempoPercorrenza").text(
-                directionsRoutes.routes[0].legs[0].duration.text
-            );
         }
     });
 }

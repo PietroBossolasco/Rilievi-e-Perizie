@@ -12,3 +12,23 @@
     z-index: 10000;
     background-color: white;
 }
+
+.topSection .title{
+    font-size: 20pt;
+    font-weight: 200;
+    text-align: center;
+    padding: 20px 50px 20px 80px;
+}
+
+.topSection img{
+    width: 80%;
+    margin-left: 10%;
+}
+
+.topSection .subtitle{
+    font-size: 15pt;
+    font-weight: 200;
+    margin-left: 10%;
+    margin-right: 10%;
+    /* padding: 20px 50px 20px 80px; */
+}
