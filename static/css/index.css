@@ -87,6 +87,7 @@ body{
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
     padding: 20px;
     display: flex;
+    cursor: pointer;
     flex-direction: column;
     margin-left: 30px;
     /* justify-content: space-between; */

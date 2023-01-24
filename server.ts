@@ -19,11 +19,16 @@ let info;
 let tokensave: string = "";
 let dbsaved: any;
 
+cloudinary.v2.config({
+  cloud_name: "dsqtbo9tc",
+  api_key: "828771716444647",
+  api_secret: "4eDuUSvPOLgakp3YfUOvm6Xe6hQ",
+ }); 
+
 const PORT = process.env.PORT || 1337;
 const HTTPS_PORT = 1338
 dotenv.config({ path: ".env" });
 var app = express();
-cloudinary.v2.config(process.env.CLOUDINARY_URL as string);
 const connectionString: any = process.env.connectionString;
 const DBNAME = "Perizie";
 const usercollection = "user";
@@ -396,6 +401,29 @@ app.get("/api/ultimePerizie", (req: any, res: any, next: any) => {
     req["connessione"].close();
   });
 });
+
+app.post("/api/base64Cloudinary", (req: any, res: any, next: any) => {
+  if (!req.body.username || !req.body.img) {
+    res.status(404);
+    res.send("File or username is missed");
+  } else {
+    cloudinary.v2.uploader
+      .upload(req.body.img, { folder: "perizie" , use_filename: true})
+      .then((result: UploadApiResponse) => {
+        let record = {
+          username: req.body.username,
+          img: result.secure_url,
+        };
+        res.status(200);
+        res.send({ url: result.secure_url});
+      })
+      .catch((err: any) => {
+        res.status(500);
+        res.send("Error upload file to Cloudinary. Error: " + err.message);
+      });
+  }
+});
+
 
 // Default route
 app.use("/", function (req: any, res: any, next: NextFunction) {
