@@ -1,5 +1,6 @@
 window.onload = function () {
   customize();
+  setlogout();
   takeAllUsers();
 
   $(".addUser").on("click", function () {

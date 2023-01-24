@@ -294,6 +294,7 @@ app.get("/api/setNewUser", (req: any, res: any, next: any) => {
       profilePic: user.profilePic,
       email: user.email,
       token: [],
+      first: true
     },
     (err: any, data: any) => {
       if (err) {

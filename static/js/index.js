@@ -3,47 +3,84 @@
 window.onload = async function () {
   loadGoogleApi().then(setMap);
   customize();
+  setlogout();
   setLastPeri();
-  var canvas = document.getElementById("canvas");
-  var data = {
-    type: "doughnut",
-    data: {
-      labels: ["pippo", "pluto", "minnie"], // keys
-      datasets: [
-        {
-          label: "Titolo del grafico", // solo per diagramma a barre
-          data: [14, 19, 32], // values
-          backgroundColor: [
-            "rgba(255, 99, 132, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 206, 86, 1)",
-          ],
-          borderColor: [
-            "rgba(255, 99, 132, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 206, 86, 1)",
-            // Nel caso si voglia utilizzare sempre lo stesso colore,
-            // al posto del vettore si può assegnare una semplice stringa
-          ],
-          borderWidth: 1 /* default 2 */,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          suggestedMax: 40,
-          suggestedMin: -40, // oppure
-          beginAtZero: true,
-        },
-      },
-      responsive: true
-      //  maintainAspectRatio:false, */
-    }
-  }
-  let chart = new Chart(canvas, data);
-
+  setChart();
 };
+
+function setChart() { 
+  let users;
+  let usernames = [];
+  let colors = [];
+  let numPerizie = [];
+  let req = inviaRichiesta("GET", "/api/takeAllUsers");
+  req.fail(errore); 
+  req.done((data) => {
+    console.log(data);
+    for(let item of data){
+      usernames.push(item.username);
+      colors.push(getRandomColor());
+      numPerizie.push(0);
+    }
+
+    function getRandomColor() {
+      var letters = "0123456789ABCDEF";
+      var color = "#";
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    users = data;
+    var canvas = document.getElementById("canvas");
+    var data = {
+      type: "doughnut",
+      data: {
+        labels: usernames, // keys
+        datasets: [
+          {
+            label: "Titolo del grafico", // solo per diagramma a barre
+            data: [14, 19, 32], // values
+            backgroundColor: colors,
+            borderColor: colors,
+            borderWidth: 1 /* default 2 */,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            suggestedMax: 40,
+            suggestedMin: -40, // oppure
+            beginAtZero: true,
+          },
+        },
+        responsive: true
+        //  maintainAspectRatio:false, */
+      }
+    }
+
+    let perizie;
+    let req = inviaRichiesta("GET", "/api/requestPerizieByIdLimit");
+    req.fail(errore);
+    req.done((data) => {
+      console.log("perizie: " + data)
+      perizie = data;
+      for(let item of perizie){
+        for(let i = 0; i < users.length; i++){
+          if(item.userId == users[i]._id){
+            numPerizie[i]++;
+          }
+        }
+      }
+      let chart = new Chart(canvas, numPerizie);
+    })
+
+
+  });
+
+}
 
 function setMap() {
   var div = document.getElementsByClassName("cardArea")[0];
@@ -77,7 +114,6 @@ function setMap() {
   let req = inviaRichiesta("GET", "/api/requestPerizieByIdLimit")
   req.fail(errore);
   req.done((data) => {
-    console.log(data);
     for (let item of data) {
       let a = item.coord.split(",")[0];
       let b = item.coord.split(",")[1];
@@ -116,7 +152,6 @@ function customize() {
   let req = inviaRichiesta("GET", "/api/dbInfo", { username: localStorage.getItem("username") });
   req.fail(errore);
   req.done((data) => {
-    console.log(data);
     // Accede tramite jQuery ai figli di .user
     $(".user").children().eq(0).attr("src", data.profilePic);
     $(".user").children().eq(1).text(data.nome + " " + data.cognome);
@@ -127,10 +162,8 @@ function customize() {
 
 function setLastPeri() {
   let req = inviaRichiesta("GET", "/api/ultimePerizie");
-  console.log(req);
   req.fail(errore);
   req.done((data) => {
-    console.log(data);
     $(".lower").empty();
     for (let item of data) {
       let div = $("<div>").addClass("minicard").appendTo(".lower");
@@ -138,7 +171,6 @@ function setLastPeri() {
       $("<p>").text(item.name).addClass("titleCard").appendTo(div);
       $("<p>").text(item.description).addClass("paragraphCard").appendTo(div);
       div.on("click", () => {
-        console.log("click");
         let div = $("<div>").addClass("info-perizia").appendTo($("body").eq(0));
         let mainDiv = $("<div>").addClass("bg-info-perizia").appendTo(div);
         let wrapper = $("<div>").addClass("wrapper-info-perizia").appendTo(mainDiv);
@@ -213,7 +245,6 @@ function setLastPeri() {
               let req = inviaRichiesta("POST", "/api/updatePerizia", {id : item._id, data : data});
               req.fail(errore);
               req.done((data) => {
-                console.log(data);
                 div.remove();
                 window.location.reload();
               });

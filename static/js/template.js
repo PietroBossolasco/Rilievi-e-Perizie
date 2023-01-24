@@ -1,7 +1,13 @@
-// window.onload = function(){
-//     let pages = $('.sec');
+"use strict";
 
-//     pages.eq(0).on("click", () => {window.location.href = "index.html";})
-//     pages.eq(1).on("click", () => {window.location.href = "perizie.html";})
-//     pages.eq(2).on("click", () => {window.location.href = "map.html";})
-// }
+function setlogout(){
+    if(localStorage.getItem("token") == null)
+        window.location.href = "login.html";
+    console.log("window.onload");
+    let div = $("<div>").appendTo($(".leftbar").eq(0)).addClass("logout").on("click", function() {
+        localStorage.removeItem("username");
+        window.location.href = "login.html";
+    })
+    $("<img>").attr("src", "/img/log-out.svg").appendTo(div);
+    $("<p>").appendTo(div).text("Logout");
+}

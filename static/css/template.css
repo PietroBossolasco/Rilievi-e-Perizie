@@ -475,3 +475,27 @@
     margin: 0 0 10px 0;
     outline: 0;
   }
+
+  .logout{
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    cursor: pointer;
+    width: 100%;
+    padding-left: 20px;
+    height: 60px;
+    display: flex;
+  }
+
+  .logout p{
+    padding-left: 30px;
+    font-size: 16pt;
+    font-weight: 200;
+    margin: 0 0 0 10px;
+  }
+
+  .logout img{
+    width: 30px;
+    height: 30px;
+    margin: 0 0 0 10px;
+  }

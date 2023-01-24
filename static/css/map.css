@@ -32,3 +32,15 @@
     margin-right: 10%;
     /* padding: 20px 50px 20px 80px; */
 }
+
+.topSection .a{
+    font-size: 15pt;
+    font-weight: 200;
+    position: absolute;
+    width: 100%;
+    bottom: 10px;
+    text-align: center;
+    text-align: center;
+    cursor: pointer;
+    color: blue;
+}

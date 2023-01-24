@@ -3,6 +3,7 @@
 window.onload = async function () {
     loadGoogleApi().then(setMap)
     customize();
+    setlogout();
 }
 
 let sede;
@@ -111,7 +112,8 @@ function setMap() {
                 let container = $(".topSection").eq(0);
                 $("<p>").addClass("title").text(item.name).appendTo(container);
                 $("<img>").attr("src", item.image[0]).appendTo(container);
-                $("<p>").addClass("desc").text(item.description).addClass("subtitle").appendTo(container);
+                $("<p>").text(item.description).addClass("subtitle").appendTo(container);
+                $("<p>").text("Maggiori informazioni").addClass("a").appendTo(container);
             });
 
         }
