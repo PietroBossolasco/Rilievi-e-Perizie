@@ -3,9 +3,9 @@
 window.onload = async function () {
   loadGoogleApi().then(setMap);
   customize();
-  setlogout();
   setLastPeri();
-  setChart();
+  setlogout();
+  // setChart();
 };
 
 function setChart() { 
@@ -22,6 +22,50 @@ function setChart() {
       colors.push(getRandomColor());
       numPerizie.push(0);
     }
+    let perizie;
+    let req = inviaRichiesta("GET", "/api/requestPerizieByIdLimit");
+    req.fail(errore);
+    req.done((data) => {
+      console.log("perizie: " + data)
+      perizie = data;
+      for(let item of perizie){
+        for(let i = 0; i < usernames.length; i++){
+          if(item.userId == users[i]._id){
+            numPerizie[i]++;
+          }
+        }
+      }
+      users = data;
+      var canvas = document.getElementById("canvas");
+      var data = {
+        type: "doughnut",
+        data: {
+          labels: usernames, // keys
+          datasets: [
+            {
+              label: "Titolo del grafico", // solo per diagramma a barre
+              data: numPerizie, // values
+              backgroundColor: colors,
+              borderColor: colors,
+              borderWidth: 1 /* default 2 */,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              suggestedMax: 40,
+              suggestedMin: -40, // oppure
+              beginAtZero: true,
+            },
+          },
+          responsive: true
+          //  maintainAspectRatio:false, */
+        }
+      }
+  
+        let chart = new Chart(canvas, numPerizie);
+    });
 
     function getRandomColor() {
       var letters = "0123456789ABCDEF";
@@ -31,55 +75,7 @@ function setChart() {
       }
       return color;
     }
-
-    users = data;
-    var canvas = document.getElementById("canvas");
-    var data = {
-      type: "doughnut",
-      data: {
-        labels: usernames, // keys
-        datasets: [
-          {
-            label: "Titolo del grafico", // solo per diagramma a barre
-            data: [14, 19, 32], // values
-            backgroundColor: colors,
-            borderColor: colors,
-            borderWidth: 1 /* default 2 */,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            suggestedMax: 40,
-            suggestedMin: -40, // oppure
-            beginAtZero: true,
-          },
-        },
-        responsive: true
-        //  maintainAspectRatio:false, */
-      }
-    }
-
-    let perizie;
-    let req = inviaRichiesta("GET", "/api/requestPerizieByIdLimit");
-    req.fail(errore);
-    req.done((data) => {
-      console.log("perizie: " + data)
-      perizie = data;
-      for(let item of perizie){
-        for(let i = 0; i < users.length; i++){
-          if(item.userId == users[i]._id){
-            numPerizie[i]++;
-          }
-        }
-      }
-      let chart = new Chart(canvas, numPerizie);
-    })
-
-
   });
-
 }
 
 function setMap() {
@@ -164,6 +160,8 @@ function setLastPeri() {
   let req = inviaRichiesta("GET", "/api/ultimePerizie");
   req.fail(errore);
   req.done((data) => {
+    console.log("Ultime perizie: ");
+    console.log(data);
     $(".lower").empty();
     for (let item of data) {
       let div = $("<div>").addClass("minicard").appendTo(".lower");

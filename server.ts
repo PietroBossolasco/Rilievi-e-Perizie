@@ -290,7 +290,7 @@ app.get("/api/setNewUser", (req: any, res: any, next: any) => {
       nome: user.nome,
       cognome: user.cognome,
       role: user.role,
-      password: user.password,
+      password: bcrypt.hashSync(user.password, 10),
       profilePic: user.profilePic,
       email: user.email,
       token: [],
@@ -303,7 +303,6 @@ app.get("/api/setNewUser", (req: any, res: any, next: any) => {
       } else {
         console.log(data);
         res.write("ok");
-        res.end();
         res.status(200);
       }
     }
@@ -334,8 +333,6 @@ app.get("/api/dbInfo", (req: any, res: any, next: any) => {
     }
   );
 });
-
-
 
 app.post("/api/newPerizia", (req: any, res: any, next: any) => {
   let collection = req["connessione"].db(DBNAME).collection("perizie");
@@ -419,7 +416,9 @@ app.get("/api/ultimePerizie", (req: any, res: any, next: any) => {
 });
 
 app.post("/api/base64Cloudinary", (req: any, res: any, next: any) => {
-  if (!req.body.username || !req.body.img) {
+  req.body.username = "test";
+
+  if (!req.body.img) {
     res.status(404);
     res.send("File or username is missed");
   } else {
@@ -440,6 +439,35 @@ app.post("/api/base64Cloudinary", (req: any, res: any, next: any) => {
   }
 });
 
+app.post("/api/changePassword", (req: any, res: any, next: any) => {
+  
+  let username = req.body.username;
+  let password = req.body.password;
+  let newPass = bcrypt.hashSync(password, 10)
+  let data = {};
+  if(req.body.changeFirst){
+    data = {
+      password : newPass,
+      first : false
+    }
+  }
+  else{
+    data = {
+      password : newPass
+    }
+  }
+
+  let collection = req["connessione"].db(DBNAME).collection("users");
+  collection.updateOne({ username: username}, {$set: data}, function (err: any, dataRis: any) {
+    if(err){
+      res.status(500);
+      res.send("Errore inserimento record");
+    }else{
+      res.send(dataRis);
+      res.status(200);
+    }
+  })
+})
 
 // Default route
 app.use("/", function (req: any, res: any, next: NextFunction) {
