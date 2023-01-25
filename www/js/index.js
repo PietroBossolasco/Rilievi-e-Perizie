@@ -23,12 +23,16 @@ document.addEventListener('deviceready', onDeviceReady, false);
 window.screen.orientation.lock('portrait');
 let userData = {};
 
+let base64image;
+let commentImge;
+
 function onDeviceReady() {
     if (localStorage.getItem("username") == null || localStorage.getItem("logged") == "false" || localStorage.getItem("logged") == null)
         window.location.href = "/login.html";
     else {
         custom();
         newPer();
+        verifypassword();
 
         $(".home").eq(0).on("click", function () {
             if ($(".page").eq(0).hasClass("hidden")) {
@@ -64,6 +68,38 @@ function onDeviceReady() {
     }
 }
 
+function verifypassword() {
+    let req = inviaRichiesta("GET", "/api/dbInfo", { username: localStorage.getItem("username") });
+    req.fail(errore);
+    req.done(function (data) {
+        if(data.first){
+            Swal.fire({
+                title: 'Cambia la password',
+                input: 'password',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                showCancelButton: false,
+                confirmButtonText: 'Cambia',
+                showLoaderOnConfirm: true,
+                preConfirm: (password) => {
+                    let req = inviaRichiesta("POST", "/api/changePassword", { "username": localStorage.getItem("username"), "password": password, changeFirst: true });
+                    req.fail(errore);
+                    req.done(function (data) {
+                        Swal.fire({
+                            title: 'Password cambiata',
+                            text: 'La tua password è stata cambiata con successo',
+                            icon: 'success',
+                            confirmButtonText: 'Ok'
+                        });
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            });
+        }
+    });
+}
+
 function custom() {
     let req = inviaRichiesta("GET", "/api/dbInfo", { "username": localStorage.getItem("username") });
     req.fail(errore);
@@ -97,6 +133,9 @@ function custom() {
 }
 
 function newPer() {
+    base64image = [];
+    commentImge = [];
+
     let datiPerizia = {
         "userId": localStorage.getItem("id"),
         "date" : null,
@@ -137,6 +176,16 @@ function newPer() {
 
         cameraOptions.sourceType = Camera.PictureSourceType.CAMERA;
         let request = navigator.camera.getPicture((imageData) => {
+            $("<div>").addClass("pos").text("Carica Foto e commento").appendTo("#load").eq(2).on("click", function(){
+                console.log("click")
+                base64image.push("data:image/jpeg;base64," + imageData);
+                commentImge.push($(".page").eq(2).children("input").eq(5).val());
+                $(".image").eq(0).attr("src", "");
+                $(".page").eq(2).children("input").eq(5).val("");
+                $(".pos").eq(1).show();
+                $(".now").eq(0).show();
+                $(this).remove();
+            })
             console.log("Selected image: " + imageData)
             $(".image").eq(0).attr("src", "data:image/jpeg;base64," + imageData);
             datiPerizia.image = "data:image/jpeg;base64," + imageData;
@@ -161,6 +210,23 @@ function newPer() {
 
         cameraOptions.sourceType = Camera.PictureSourceType.PHOTOLIBRARY;
         let request = navigator.camera.getPicture((imageData) => {
+            $("<div>").addClass("pos").text("Carica Foto e commento").appendTo($("#load")).on("click", function(){
+                console.log("click")
+                base64image.push("data:image/jpeg;base64," + imageData);
+                commentImge.push($(".page").eq(2).children("input").eq(5).val());
+                $(".image").eq(0).attr("src", "");
+                $(".page").eq(2).children("input").eq(5).val("");
+                $(".pos").eq(1).show();
+                $(".now").eq(0).show();
+                $(".page").eq(2).children("p").eq(5).text("Immagini (caricate " + base64image.length + ")");
+                $(".page").eq(2).children("p").eq(6).show();
+                $(this).remove();
+            })
+
+            $(".pos").eq(2).on("click", ()=>{
+                console.log("ciao")
+            })
+
             console.log("Selected image: " + imageData)
             $(".image").eq(0).attr("src", "data:image/jpeg;base64," + imageData);
             datiPerizia.image = "data:image/jpeg;base64," + imageData;
@@ -177,38 +243,56 @@ function newPer() {
     });
 
     $(".line").eq(0).children(".button").eq(1).on("click", function () {
-        let datiPerizia = {
-            "userId": localStorage.getItem("id"),
-            "date" : $(".page").eq(2).children("input").eq(2).val(),
-            "hour" : $(".page").eq(2).children("input").eq(3).val(),
-            "coord" : $(".page").eq(2).children("input").eq(4).val(),
-            "name" : $(".page").eq(2).children("input").eq(0).val(),
-            "description" : $(".page").eq(2).children("input").eq(1).val(),
-            "image" : $(".image").eq(0).attr("src"),
-            "imageComment" : $(".page").eq(2).children("input").eq(5).val()
+    
+        let urls = [];
+
+        let i = 0;
+        for(let item of base64image){
+            let uploadImage = inviaRichiesta("POST", "/api/base64Cloudinary", {"img": item, "username": localStorage.getItem("username")});
+            uploadImage.fail(errore);
+            uploadImage.done(function (data) {
+                i++;
+                if(i == base64image.length){
+                    urls.push(data.url);
+                    uploadPerizia();
+                }
+            });
         }
 
-        let req = inviaRichiesta("POST", "/api/newPerizia", datiPerizia);
-        req.fail(errore);
-        req.done(function (data) {
-            console.log(data);
-            Swal.fire(
-                'Perizia creata',
-                'La perizia è stata creata con successo',
-                'success'
-            )
-            $(".page").eq(2).children("input").eq(0).val("");
-            $(".page").eq(2).children("input").eq(1).val("");
-            $(".page").eq(2).children("input").eq(2).val("");
-            $(".page").eq(2).children("input").eq(3).val("");
-            $(".page").eq(2).children("input").eq(4).val("");
-            $(".page").eq(2).children("input").eq(5).val("");
-            $(".image").eq(0).attr("src", "");
-            $(".pos").eq(1).show();
-            $(".now").eq(0).show();
-            $(".page").eq(2).children("p").eq(6).show();
-            $(".page").eq(2).hide();
-            $(".page").eq(0).show();
-        });
+        function uploadPerizia(){
+            let datiPerizia = {
+                "userId": localStorage.getItem("id"),
+                "date" : $(".page").eq(2).children("input").eq(2).val(),
+                "hour" : $(".page").eq(2).children("input").eq(3).val(),
+                "coord" : $(".page").eq(2).children("input").eq(4).val(),
+                "name" : $(".page").eq(2).children("input").eq(0).val(),
+                "description" : $(".page").eq(2).children("input").eq(1).val(),
+                "image" : urls,
+                "imageComment" : commentImge
+            }
+    
+            let req = inviaRichiesta("POST", "/api/newPerizia", datiPerizia);
+            req.fail(errore);
+            req.done(function (data) {
+                console.log(data);
+                Swal.fire(
+                    'Perizia creata',
+                    'La perizia è stata creata con successo',
+                    'success'
+                )
+                $(".page").eq(2).children("input").eq(0).val("");
+                $(".page").eq(2).children("input").eq(1).val("");
+                $(".page").eq(2).children("input").eq(2).val("");
+                $(".page").eq(2).children("input").eq(3).val("");
+                $(".page").eq(2).children("input").eq(4).val("");
+                $(".page").eq(2).children("input").eq(5).val("");
+                $(".image").eq(0).attr("src", "");
+                $(".pos").eq(1).show();
+                $(".now").eq(0).show();
+                $(".page").eq(2).children("p").eq(6).show();
+                $(".page").eq(2).hide();
+                $(".page").eq(0).show();
+            });
+        }
     });
 }
